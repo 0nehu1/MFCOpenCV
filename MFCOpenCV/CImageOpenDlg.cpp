@@ -108,7 +108,7 @@ void CImageOpenDlg::OnBnClickedButtonImage()
 
 		m_matImage = imread(strPath, IMREAD_UNCHANGED);
 
-
+		c_matImage = m_matImage;
 
 		CreateBitmapInfo(m_matImage.cols, m_matImage.rows, m_matImage.channels() * 8);
 
