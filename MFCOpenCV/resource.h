@@ -17,8 +17,9 @@
 #define IDC_BUTTON_IMAGE_ORIGINAL       1007
 #define IDC_SCROLLBAR_HORIZON           1009
 #define IDC_SCROLLBAR_VERTICAL          1010
-#define IDC_BUTTON1                     1011
 #define IDC_BUTTON_SOBEL                1011
+#define IDC_BUTTON_SOBEL2               1012
+#define IDC_BUTTON_CANNYEDGE            1012
 #define ID_OPENCV_32771                 32771
 #define ID_OPENCV_IMAGEIN               32772
 

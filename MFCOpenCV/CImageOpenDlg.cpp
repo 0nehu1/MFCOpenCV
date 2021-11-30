@@ -108,6 +108,7 @@ BEGIN_MESSAGE_MAP(CImageOpenDlg, CDialogEx)
 	ON_WM_HSCROLL()
 	ON_WM_ERASEBKGND()
 	ON_BN_CLICKED(IDC_BUTTON_SOBEL, &CImageOpenDlg::OnBnClickedButtonSobel)
+	ON_BN_CLICKED(IDC_BUTTON_CANNYEDGE, &CImageOpenDlg::OnBnClickedButtonCannyedge)
 END_MESSAGE_MAP()
 
 
@@ -268,7 +269,7 @@ void CImageOpenDlg::OnBnClickedButtonImageEnlargement()
 	//CPoint point;
 	//Mat dst1, dst2;
 	//resize(m_matImage, dst1, Size(), 4, 4, INTER_NEAREST);
-	resize(c_matImage, c_matImage, Size(m_matImage.cols/count,m_matImage.rows/count), 0, 0, INTER_CUBIC);
+	resize(c_matImage, c_matImage, Size(c_matImage.cols/count,c_matImage.rows/count), 0, 0, INTER_CUBIC);
 	
 	
 	//imshow("dst1", dst2(Rect(point.x,point.y, m_matImage.cols/4,m_matImage.rows/4)));
@@ -301,7 +302,7 @@ void CImageOpenDlg::OnBnClickedButtonImageOriginal()
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 	
 	count = 1;
-	resize(c_matImage, c_matImage, Size(m_matImage.cols / count, m_matImage.rows / count), 0, 0, INTER_CUBIC);
+	resize(m_matImage, c_matImage, Size(m_matImage.cols / count, m_matImage.rows / count), 0, 0, INTER_CUBIC);
 	CreateBitmapInfo(c_matImage.cols, c_matImage.rows, c_matImage.channels() * 8);
 	DrawImage(c_matImage);
 	//DrawImage();
@@ -516,4 +517,16 @@ void CImageOpenDlg::OnBnClickedButtonSobel()
 	//c_matImage = mag > 150;
 
 	DrawImage(c_matImage);
+}
+
+
+void CImageOpenDlg::OnBnClickedButtonCannyedge()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	Mat dst1;
+	Canny(c_matImage, dst1, 50, 100);
+
+	c_matImage = dst1;
+
+	DrawImage(dst1);
 }

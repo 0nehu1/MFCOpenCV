@@ -63,4 +63,5 @@ public:
 	CScrollBar m_VScroll;
 	CScrollBar m_HScroll;
 	afx_msg void OnBnClickedButtonSobel();
+	afx_msg void OnBnClickedButtonCannyedge();
 };
