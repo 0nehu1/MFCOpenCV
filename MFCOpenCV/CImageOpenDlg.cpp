@@ -109,6 +109,7 @@ BEGIN_MESSAGE_MAP(CImageOpenDlg, CDialogEx)
 	ON_WM_ERASEBKGND()
 	ON_BN_CLICKED(IDC_BUTTON_SOBEL, &CImageOpenDlg::OnBnClickedButtonSobel)
 	ON_BN_CLICKED(IDC_BUTTON_CANNYEDGE, &CImageOpenDlg::OnBnClickedButtonCannyedge)
+	ON_BN_CLICKED(IDC_BUTTON_CIRCLEDETECT, &CImageOpenDlg::OnBnClickedButtonCircledetect)
 END_MESSAGE_MAP()
 
 
@@ -126,7 +127,7 @@ void CImageOpenDlg::OnBnClickedButtonImage()
 		CT2CA pszString(path);
 		std::string strPath(pszString);
 
-		m_matImage = imread(strPath, IMREAD_UNCHANGED);
+		m_matImage = imread(strPath, IMREAD_GRAYSCALE);
 
 		c_matImage = m_matImage; // 객체에 이미지 복사
 
@@ -514,9 +515,9 @@ void CImageOpenDlg::OnBnClickedButtonSobel()
 	magnitude(dx, dy, fmag);
 	fmag.convertTo(mag, CV_8UC1);
 
-	//c_matImage = mag > 150;
+	c_matImage = mag > 150;
 
-	DrawImage(mag);
+	DrawImage(c_matImage);
 }
 
 
@@ -529,4 +530,27 @@ void CImageOpenDlg::OnBnClickedButtonCannyedge()
 	c_matImage = dst1;
 
 	DrawImage(dst1);
+}
+
+
+void CImageOpenDlg::OnBnClickedButtonCircledetect()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	Mat blurred;
+	blur(c_matImage, blurred, Size(3, 3));
+
+	std::vector<Vec3f> circles;
+	HoughCircles(blurred, circles, HOUGH_GRADIENT, 1, 50, 150, 30);
+
+	Mat dst;
+	cvtColor(c_matImage, dst, COLOR_GRAY2BGR);
+
+	for (Vec3f c : circles) {
+		Point center(cvRound(c[0]), cvRound(c[1]));
+		int radius = cvRound(c[2]);
+		circle(dst, center, radius, Scalar(0, 0, 255), 2, LINE_AA);
+	}
+	//DrawImage(dst);
+	imshow("dst", dst);
+	waitKey();
 }
