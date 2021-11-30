@@ -33,6 +33,8 @@ public:
 	long double trans_count_w = 1; // 가로 비율
 	long double trans_count_h = 1; // 세로 비율
 
+	long double count=1;
+
 protected:
 	HICON m_hIcon;
 protected:
@@ -49,4 +51,7 @@ public:
 	CStatic m_TextSize2;
 	CStatic m_TextSize3;
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
+	afx_msg void OnBnClickedButtonImageEnlargement();
+	afx_msg void OnBnClickedButtonImageReduction();
+	afx_msg void OnBnClickedButtonImageOriginal();
 };

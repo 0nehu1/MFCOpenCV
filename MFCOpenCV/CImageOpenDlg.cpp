@@ -71,7 +71,7 @@ void CImageOpenDlg::DrawImage()
 
 	SetStretchBltMode(dc.GetSafeHdc(), COLORONCOLOR);
 	StretchDIBits(dc.GetSafeHdc(), 0, 0, rect.Width(), rect.Height(), 0, 0, 
-		m_matImage.cols, m_matImage.rows, m_matImage.data, m_pBitmapInfo, DIB_RGB_COLORS, SRCCOPY);
+		m_matImage.cols/count, m_matImage.rows/count, m_matImage.data, m_pBitmapInfo, DIB_RGB_COLORS, SRCCOPY);
 }
 
 void CImageOpenDlg::DoDataExchange(CDataExchange* pDX)
@@ -89,6 +89,9 @@ BEGIN_MESSAGE_MAP(CImageOpenDlg, CDialogEx)
 	ON_WM_DESTROY()
 	ON_WM_NCMOUSEMOVE()
 	ON_WM_MOUSEMOVE()
+	ON_BN_CLICKED(IDC_BUTTON_IMAGE_ENLARGEMENT, &CImageOpenDlg::OnBnClickedButtonImageEnlargement)
+	ON_BN_CLICKED(IDC_BUTTON_IMAGE_REDUCTION, &CImageOpenDlg::OnBnClickedButtonImageReduction)
+	ON_BN_CLICKED(IDC_BUTTON_IMAGE_ORIGINAL, &CImageOpenDlg::OnBnClickedButtonImageOriginal)
 END_MESSAGE_MAP()
 
 
@@ -108,7 +111,7 @@ void CImageOpenDlg::OnBnClickedButtonImage()
 
 		m_matImage = imread(strPath, IMREAD_UNCHANGED);
 
-		c_matImage = m_matImage;
+		c_matImage = m_matImage; // 객체에 이미지 복사
 
 		CreateBitmapInfo(m_matImage.cols, m_matImage.rows, m_matImage.channels() * 8);
 
@@ -233,4 +236,38 @@ void CImageOpenDlg::OnMouseMove(UINT nFlags, CPoint point)
 	m_TextSize3.SetWindowTextW(strPoint6);
 	
 
+}
+
+
+void CImageOpenDlg::OnBnClickedButtonImageEnlargement()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+
+	//CPoint point;
+	//Mat dst1,dst2;
+	//resize(m_matImage, dst1, Size(), 4, 4, INTER_NEAREST);
+	//resize(m_matImage, dst2, Size(m_matImage.cols*4,m_matImage.rows*4), point.x, point.y, INTER_CUBIC);
+	
+	count = count * 2;
+	//imshow("dst1", dst2(Rect(point.x,point.y, m_matImage.cols/4,m_matImage.rows/4)));
+	//waitKey();
+	
+	//CreateBitmapInfo(dst2.cols, dst2.rows, dst2.channels() * 8);
+	DrawImage();
+}
+
+
+void CImageOpenDlg::OnBnClickedButtonImageReduction()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	count = count * 0.5;
+	DrawImage();
+}
+
+
+void CImageOpenDlg::OnBnClickedButtonImageOriginal()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	count = 1;
+	DrawImage();
 }

@@ -12,6 +12,10 @@
 #define IDC_TEXT_SIZE                   1002
 #define IDC_TEXT_SIZE2                  1003
 #define IDC_TEXT_SIZE3                  1004
+#define IDC_BUTTON_IMAGE_ENLARGEMENT    1005
+#define IDC_BUTTON_IMAGE_REDUCTION      1006
+#define IDC_BUTTON_IMAGE_ENLARGEMENT3   1007
+#define IDC_BUTTON_IMAGE_ORIGINAL       1007
 #define ID_OPENCV_32771                 32771
 #define ID_OPENCV_IMAGEIN               32772
 
