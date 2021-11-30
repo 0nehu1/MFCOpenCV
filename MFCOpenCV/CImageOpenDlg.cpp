@@ -66,22 +66,20 @@ void CImageOpenDlg::DrawImage(Mat img)
 {
 	CClientDC dc(GetDlgItem(IDC_PICTURE));
 
-	CRect rect;
-	
-	
-	
-	
+
 	//GetDlgItem(IDC_PICTURE)->ScreenToClient(&rect);
 	GetDlgItem(IDC_PICTURE)->GetClientRect(&rect);
 	
 	SetStretchBltMode(dc.GetSafeHdc(), COLORONCOLOR);
 	StretchDIBits(dc.GetSafeHdc(), 0, 0, rect.Width(), rect.Height() , 0, 0,
-		img.cols, img.rows, img.data, m_pBitmapInfo, DIB_RGB_COLORS, SRCCOPY);
+		m_matImage.cols, m_matImage.rows, img.data, m_pBitmapInfo, DIB_RGB_COLORS, SRCCOPY);
+	//StretchDIBits(dc.GetSafeHdc(), 0, 0, rect.Width(), rect.Height(), 0, 0,
+		//img.cols/count, img.rows/count, img.data, m_pBitmapInfo, DIB_RGB_COLORS, SRCCOPY);
 
 	//if(count>1)
 	//InvalidateRect(rect,TRUE );
 	
-	
+	//InvalidateRect(&rect);
 	
 
 }
@@ -92,6 +90,8 @@ void CImageOpenDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_TEXT_SIZE, m_TextSize);
 	DDX_Control(pDX, IDC_TEXT_SIZE2, m_TextSize2);
 	DDX_Control(pDX, IDC_TEXT_SIZE3, m_TextSize3);
+	DDX_Control(pDX, IDC_SCROLLBAR_VERTICAL, m_VScroll);
+	DDX_Control(pDX, IDC_SCROLLBAR_HORIZON, m_HScroll);
 }
 
 
@@ -104,6 +104,10 @@ BEGIN_MESSAGE_MAP(CImageOpenDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_IMAGE_ENLARGEMENT, &CImageOpenDlg::OnBnClickedButtonImageEnlargement)
 	ON_BN_CLICKED(IDC_BUTTON_IMAGE_REDUCTION, &CImageOpenDlg::OnBnClickedButtonImageReduction)
 	ON_BN_CLICKED(IDC_BUTTON_IMAGE_ORIGINAL, &CImageOpenDlg::OnBnClickedButtonImageOriginal)
+	ON_WM_VSCROLL()
+	ON_WM_HSCROLL()
+	ON_WM_ERASEBKGND()
+	ON_BN_CLICKED(IDC_BUTTON_SOBEL, &CImageOpenDlg::OnBnClickedButtonSobel)
 END_MESSAGE_MAP()
 
 
@@ -169,10 +173,10 @@ void CImageOpenDlg::OnPaint()
 		// Center icon in client rectangle
 		int cxIcon = GetSystemMetrics(SM_CXICON);
 		int cyIcon = GetSystemMetrics(SM_CYICON);
-		CRect rect;
+		
 		GetClientRect(&rect);
-		int x = (rect.Width() - cxIcon + 1) / 2;
-		int y = (rect.Height() - cyIcon + 1) / 2;
+		int x = (rect.Width()  - cxIcon + 1) / 2;
+		int y = (rect.Height()  - cyIcon + 1) / 2;
 
 		// Draw the icon
 		dc.DrawIcon(x, y, m_hIcon);
@@ -257,21 +261,22 @@ void CImageOpenDlg::OnBnClickedButtonImageEnlargement()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 
-	CPoint point;
-	Mat dst1,dst2;
+	
 
-	count = count * 2;
-
-	resize(m_matImage, dst1, Size(), 4, 4, INTER_NEAREST);
-	resize(m_matImage, dst2, Size(m_matImage.cols/count,m_matImage.rows/count), 0, 0, INTER_CUBIC);
+	count = count * 0.5;
+	
+	//CPoint point;
+	//Mat dst1, dst2;
+	//resize(m_matImage, dst1, Size(), 4, 4, INTER_NEAREST);
+	resize(c_matImage, c_matImage, Size(m_matImage.cols/count,m_matImage.rows/count), 0, 0, INTER_CUBIC);
 	
 	
 	//imshow("dst1", dst2(Rect(point.x,point.y, m_matImage.cols/4,m_matImage.rows/4)));
 	//waitKey();
 	
-	CreateBitmapInfo(dst2.cols, dst2.rows, dst2.channels() * 8);
-	DrawImage(dst2);
-	
+	CreateBitmapInfo(c_matImage.cols, c_matImage.rows, c_matImage.channels() * 8);
+	DrawImage(c_matImage);
+	//DrawImage();
 }
 
 
@@ -279,24 +284,236 @@ void CImageOpenDlg::OnBnClickedButtonImageReduction()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 	
-	Mat dst1, dst2;
+	//Mat dst1, dst2;
 
-	count = count * 0.5;
+	count = count * 2;
 
 	//resize(m_matImage, dst1, Size(), 4, 4, INTER_NEAREST);
-	resize(m_matImage, dst2, Size(m_matImage.cols / count, m_matImage.rows / count), 0,0, INTER_CUBIC);
-	CreateBitmapInfo(dst2.cols, dst2.rows, dst2.channels() * 8);
-	DrawImage(dst2);
-	
+	resize(c_matImage, c_matImage, Size(m_matImage.cols / count, m_matImage.rows / count), 0,0, INTER_CUBIC);
+	CreateBitmapInfo(c_matImage.cols, c_matImage.rows, c_matImage.channels() * 8);
+	DrawImage(c_matImage);
+	//DrawImage();
 }
 
 
 void CImageOpenDlg::OnBnClickedButtonImageOriginal()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-	Mat dst2;
+	
 	count = 1;
-	resize(m_matImage, dst2, Size(m_matImage.cols / count, m_matImage.rows / count), 0, 0, INTER_CUBIC);
-	CreateBitmapInfo(dst2.cols, dst2.rows, dst2.channels() * 8);
-	DrawImage(dst2);
+	resize(c_matImage, c_matImage, Size(m_matImage.cols / count, m_matImage.rows / count), 0, 0, INTER_CUBIC);
+	CreateBitmapInfo(c_matImage.cols, c_matImage.rows, c_matImage.channels() * 8);
+	DrawImage(c_matImage);
+	//DrawImage();
+}
+
+
+void CImageOpenDlg::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
+{
+	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+
+	//m_VScroll.SetScrollRange(0, 572);
+	//m_VScroll.SetScrollPos(572);
+
+	SCROLLINFO  scrinfo;
+	scrinfo.cbSize = sizeof(scrinfo);
+	scrinfo.fMask = SIF_ALL;
+	scrinfo.nMin = 0;          // 최소값
+	scrinfo.nMax = m_matImage.rows;      // 최대값
+	scrinfo.nPage = 10;      // 페이지단위 증가값
+	scrinfo.nTrackPos = 0;  // 트랙바가 움직일때의 위치값
+	scrinfo.nPos = 572;        // 위치
+	m_VScroll.SetScrollInfo(&scrinfo);
+
+	if (pScrollBar)
+	{
+
+		// 스크롤 바 검사
+
+		if (pScrollBar == (CScrollBar*)&m_VScroll)
+
+		{
+			SCROLLINFO  scrinfo;
+			// 스크롤바 정보를 가져온다.
+			if (pScrollBar->GetScrollInfo(&scrinfo))
+			{
+				switch (nSBCode)
+				{
+				case SB_PAGEUP:   // 스크롤 바의 위쪽 바를 클릭
+					scrinfo.nPos -= scrinfo.nPage;
+					break;
+				case SB_PAGEDOWN:  // 스크롤 바의 아래쪽 바를 클릭
+					scrinfo.nPos += scrinfo.nPage;
+					break;
+				case SB_LINEUP:   // 스크롤 바의 위쪽 화살표를 클릭
+					scrinfo.nPos -= scrinfo.nPage / 10;
+					break;
+				case SB_LINEDOWN:  // 스크롤 바의 아래쪽 화살표를 클릭
+					scrinfo.nPos += scrinfo.nPage / 10;
+					break;
+				case SB_THUMBPOSITION: // 스크롤바의 트랙이 움직이고 나서
+				case SB_THUMBTRACK:  // 스크롤바의 트랙이 움직이는 동안
+					scrinfo.nPos = scrinfo.nTrackPos;   // 16bit값 이상을 사용
+
+					break;
+				}
+
+
+				// 스크롤바의 위치를 변경한다.
+				pScrollBar->SetScrollPos(scrinfo.nPos);
+
+			}
+
+		}
+	}
+
+	else
+
+	{
+
+		// 이 부분은 Scroll기능이 있는 뷰를 사용시 사용된다.
+		int ScrollPos = GetScrollPos(SB_VERT); // 세로 스크롤바 포지션 구하기
+																	  // 가로는: SB_HORZ
+
+		switch (nSBCode)
+		{
+		case SB_PAGEUP:        // 스크롤 바의 위쪽 바를 클릭
+		case SB_PAGEDOWN:  // 스크롤 바의 아래쪽 바를 클릭
+		case SB_LINEUP:         // 스크롤 바의 위쪽 화살표를 클릭
+		case SB_LINEDOWN:    // 스크롤 바의 아래쪽 화살표를 클릭
+			CDialog::OnVScroll(nSBCode, nPos, pScrollBar);
+			break;
+		case SB_THUMBPOSITION:  // 스크롤바의 트랙이 움직이고 나서
+		case SB_THUMBTRACK:      // 스크롤바의 트랙이 움직이는 동안
+
+			scrinfo.nPos = scrinfo.nTrackPos;
+			// 스크롤바의 위치를 변경한다.
+			SetScrollPos(SB_VERT, scrinfo.nPos);
+			Invalidate(FALSE);
+			break;
+		}
+
+	}
+
+
+
+}
+
+
+void CImageOpenDlg::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
+{
+	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+	//m_HScroll.SetScrollRange(0, 651);
+	//m_HScroll.SetScrollPos(0);
+
+	SCROLLINFO  scrinfo;
+	scrinfo.cbSize = sizeof(scrinfo);
+	scrinfo.fMask = SIF_ALL;
+	scrinfo.nMin = 0;          // 최소값
+	scrinfo.nMax = m_matImage.cols;      // 최대값
+	scrinfo.nPage = 10;      // 페이지단위 증가값
+	scrinfo.nTrackPos = 0;  // 트랙바가 움직일때의 위치값
+	scrinfo.nPos = 0;        // 위치
+	m_VScroll.SetScrollInfo(&scrinfo);
+
+	if (pScrollBar)
+	{
+
+		// 스크롤 바 검사
+
+		if (pScrollBar == (CScrollBar*)&m_HScroll)
+
+		{
+			SCROLLINFO  scrinfo;
+			// 스크롤바 정보를 가져온다.
+			if (pScrollBar->GetScrollInfo(&scrinfo))
+			{
+				switch (nSBCode)
+				{
+				case SB_PAGEUP:   // 스크롤 바의 위쪽 바를 클릭
+					scrinfo.nPos -= scrinfo.nPage;
+					break;
+				case SB_PAGEDOWN:  // 스크롤 바의 아래쪽 바를 클릭
+					scrinfo.nPos += scrinfo.nPage;
+					break;
+				case SB_LINEUP:   // 스크롤 바의 위쪽 화살표를 클릭
+					scrinfo.nPos -= scrinfo.nPage / 10;
+					break;
+				case SB_LINEDOWN:  // 스크롤 바의 아래쪽 화살표를 클릭
+					scrinfo.nPos += scrinfo.nPage / 10;
+					break;
+				case SB_THUMBPOSITION: // 스크롤바의 트랙이 움직이고 나서
+				case SB_THUMBTRACK:  // 스크롤바의 트랙이 움직이는 동안
+					scrinfo.nPos = scrinfo.nTrackPos;   // 16bit값 이상을 사용
+
+					break;
+				}
+
+
+				// 스크롤바의 위치를 변경한다.
+				pScrollBar->SetScrollPos(scrinfo.nPos);
+
+			}
+
+		}
+	}
+
+	else
+
+	{
+
+		// 이 부분은 Scroll기능이 있는 뷰를 사용시 사용된다.
+		int ScrollPos = GetScrollPos(SB_VERT); // 세로 스크롤바 포지션 구하기
+																	  // 가로는: SB_HORZ
+
+		switch (nSBCode)
+		{
+		case SB_PAGEUP:        // 스크롤 바의 위쪽 바를 클릭
+		case SB_PAGEDOWN:  // 스크롤 바의 아래쪽 바를 클릭
+		case SB_LINEUP:         // 스크롤 바의 위쪽 화살표를 클릭
+		case SB_LINEDOWN:    // 스크롤 바의 아래쪽 화살표를 클릭
+			CDialog::OnHScroll(nSBCode, nPos, pScrollBar);
+			break;
+		case SB_THUMBPOSITION:  // 스크롤바의 트랙이 움직이고 나서
+		case SB_THUMBTRACK:      // 스크롤바의 트랙이 움직이는 동안
+
+			scrinfo.nPos = scrinfo.nTrackPos;
+			// 스크롤바의 위치를 변경한다.
+			SetScrollPos(SB_VERT, scrinfo.nPos);
+			Invalidate(FALSE);
+			break;
+		}
+
+	}
+
+
+
+
+
+}
+
+
+
+BOOL CImageOpenDlg::OnEraseBkgnd(CDC* pDC)
+{
+	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+
+	return CDialogEx::OnEraseBkgnd(pDC);
+}
+
+
+void CImageOpenDlg::OnBnClickedButtonSobel()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	Mat dx, dy;
+	Sobel(c_matImage, dx, CV_32FC1, 1, 0);
+	Sobel(c_matImage, dy, CV_32FC1, 0, 1);
+
+	Mat fmag;
+	magnitude(dx, dy, fmag);
+	fmag.convertTo(c_matImage, CV_8UC1);
+
+	//c_matImage = mag > 150;
+
+	DrawImage(c_matImage);
 }

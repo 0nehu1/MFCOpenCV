@@ -28,13 +28,16 @@ public:
 	BITMAPINFO* m_pBitmapInfo; // Bitmap 정보를 담고 있는 구조체.
 
 	void CreateBitmapInfo(int w, int h, int bpp); // Bitmap 정보를 생성하는 함수.
+	//void DrawImage(Mat img); // 그리는 작업을 수행하는 함수.
 	void DrawImage(Mat img); // 그리는 작업을 수행하는 함수.
-
 	long double trans_count_w = 1; // 가로 비율
 	long double trans_count_h = 1; // 세로 비율
 
 	long double count=1;
 
+	CRect rect;
+
+	int sourcex, sourcey;
 protected:
 	HICON m_hIcon;
 protected:
@@ -54,4 +57,10 @@ public:
 	afx_msg void OnBnClickedButtonImageEnlargement();
 	afx_msg void OnBnClickedButtonImageReduction();
 	afx_msg void OnBnClickedButtonImageOriginal();
+	afx_msg void OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
+	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
+	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
+	CScrollBar m_VScroll;
+	CScrollBar m_HScroll;
+	afx_msg void OnBnClickedButtonSobel();
 };
