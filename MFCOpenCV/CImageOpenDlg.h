@@ -28,7 +28,7 @@ public:
 	BITMAPINFO* m_pBitmapInfo; // Bitmap 정보를 담고 있는 구조체.
 
 	void CreateBitmapInfo(int w, int h, int bpp); // Bitmap 정보를 생성하는 함수.
-	void DrawImage(); // 그리는 작업을 수행하는 함수.
+	void DrawImage(Mat img); // 그리는 작업을 수행하는 함수.
 
 	long double trans_count_w = 1; // 가로 비율
 	long double trans_count_h = 1; // 세로 비율

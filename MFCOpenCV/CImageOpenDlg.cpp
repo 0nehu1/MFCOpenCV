@@ -62,16 +62,28 @@ void CImageOpenDlg::CreateBitmapInfo(int w, int h, int bpp)
 	
 }
 
-void CImageOpenDlg::DrawImage()
+void CImageOpenDlg::DrawImage(Mat img)
 {
 	CClientDC dc(GetDlgItem(IDC_PICTURE));
 
 	CRect rect;
+	
+	
+	
+	
+	//GetDlgItem(IDC_PICTURE)->ScreenToClient(&rect);
 	GetDlgItem(IDC_PICTURE)->GetClientRect(&rect);
-
+	
 	SetStretchBltMode(dc.GetSafeHdc(), COLORONCOLOR);
-	StretchDIBits(dc.GetSafeHdc(), 0, 0, rect.Width(), rect.Height(), 0, 0, 
-		m_matImage.cols/count, m_matImage.rows/count, m_matImage.data, m_pBitmapInfo, DIB_RGB_COLORS, SRCCOPY);
+	StretchDIBits(dc.GetSafeHdc(), 0, 0, rect.Width(), rect.Height() , 0, 0,
+		img.cols, img.rows, img.data, m_pBitmapInfo, DIB_RGB_COLORS, SRCCOPY);
+
+	//if(count>1)
+	//InvalidateRect(rect,TRUE );
+	
+	
+	
+
 }
 
 void CImageOpenDlg::DoDataExchange(CDataExchange* pDX)
@@ -115,7 +127,8 @@ void CImageOpenDlg::OnBnClickedButtonImage()
 
 		CreateBitmapInfo(m_matImage.cols, m_matImage.rows, m_matImage.channels() * 8);
 
-		DrawImage();
+		DrawImage(m_matImage);
+		Invalidate(false); // TRUE, FALSE는 알아서.
 	}
 	// 영상 출력 Picture Control 크기
 	CStatic* staticSize = (CStatic*)GetDlgItem(IDC_PICTURE);
@@ -163,6 +176,7 @@ void CImageOpenDlg::OnPaint()
 
 		// Draw the icon
 		dc.DrawIcon(x, y, m_hIcon);
+		
 	}
 	else
 	{
@@ -232,7 +246,7 @@ void CImageOpenDlg::OnMouseMove(UINT nFlags, CPoint point)
 	//m_TextSize3.SetWindowTextW(strPoint5);
 
 	CString strPoint6;
-	strPoint6.Format(L"%04.1f, %04.1f", point.x/ trans_count_w, point.y/ trans_count_h);
+	strPoint6.Format(L"%04.1f, %04.1f", point.x/ trans_count_w*count, point.y/ trans_count_h*count);
 	m_TextSize3.SetWindowTextW(strPoint6);
 	
 
@@ -243,31 +257,46 @@ void CImageOpenDlg::OnBnClickedButtonImageEnlargement()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 
-	//CPoint point;
-	//Mat dst1,dst2;
-	//resize(m_matImage, dst1, Size(), 4, 4, INTER_NEAREST);
-	//resize(m_matImage, dst2, Size(m_matImage.cols*4,m_matImage.rows*4), point.x, point.y, INTER_CUBIC);
-	
+	CPoint point;
+	Mat dst1,dst2;
+
 	count = count * 2;
+
+	resize(m_matImage, dst1, Size(), 4, 4, INTER_NEAREST);
+	resize(m_matImage, dst2, Size(m_matImage.cols/count,m_matImage.rows/count), 0, 0, INTER_CUBIC);
+	
+	
 	//imshow("dst1", dst2(Rect(point.x,point.y, m_matImage.cols/4,m_matImage.rows/4)));
 	//waitKey();
 	
-	//CreateBitmapInfo(dst2.cols, dst2.rows, dst2.channels() * 8);
-	DrawImage();
+	CreateBitmapInfo(dst2.cols, dst2.rows, dst2.channels() * 8);
+	DrawImage(dst2);
+	
 }
 
 
 void CImageOpenDlg::OnBnClickedButtonImageReduction()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	
+	Mat dst1, dst2;
+
 	count = count * 0.5;
-	DrawImage();
+
+	//resize(m_matImage, dst1, Size(), 4, 4, INTER_NEAREST);
+	resize(m_matImage, dst2, Size(m_matImage.cols / count, m_matImage.rows / count), 0,0, INTER_CUBIC);
+	CreateBitmapInfo(dst2.cols, dst2.rows, dst2.channels() * 8);
+	DrawImage(dst2);
+	
 }
 
 
 void CImageOpenDlg::OnBnClickedButtonImageOriginal()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	Mat dst2;
 	count = 1;
-	DrawImage();
+	resize(m_matImage, dst2, Size(m_matImage.cols / count, m_matImage.rows / count), 0, 0, INTER_CUBIC);
+	CreateBitmapInfo(dst2.cols, dst2.rows, dst2.channels() * 8);
+	DrawImage(dst2);
 }
