@@ -510,13 +510,13 @@ void CImageOpenDlg::OnBnClickedButtonSobel()
 	Sobel(c_matImage, dx, CV_32FC1, 1, 0);
 	Sobel(c_matImage, dy, CV_32FC1, 0, 1);
 
-	Mat fmag;
+	Mat fmag,mag;
 	magnitude(dx, dy, fmag);
-	fmag.convertTo(c_matImage, CV_8UC1);
+	fmag.convertTo(mag, CV_8UC1);
 
 	//c_matImage = mag > 150;
 
-	DrawImage(c_matImage);
+	DrawImage(mag);
 }
 
 
