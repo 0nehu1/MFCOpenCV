@@ -75,11 +75,11 @@ void CImageOpenDlg::DrawImage(Mat img)
 
 	SetStretchBltMode(dc.GetSafeHdc(), COLORONCOLOR);
 	StretchDIBits(dc.GetSafeHdc(), 0, 0, rect.Width(), rect.Height() , 0, 0,
-		m_matImage.cols, m_matImage.rows, img.data, m_pBitmapInfo, DIB_RGB_COLORS, SRCCOPY);
+		c_matImage.cols*count, c_matImage.rows*count, img.data, m_pBitmapInfo, DIB_RGB_COLORS, SRCCOPY);
 
 	SetStretchBltMode(dc2.GetSafeHdc(), COLORONCOLOR);
 	StretchDIBits(dc2.GetSafeHdc(), 0, 0, 99, 99, 0, 0,
-		m_matImage.cols, m_matImage.rows, img.data, m_pBitmapInfo, DIB_RGB_COLORS, SRCCOPY);
+		c_matImage.cols, c_matImage.rows, img.data, m_pBitmapInfo, DIB_RGB_COLORS, SRCCOPY);
 
 	//StretchDIBits(dc.GetSafeHdc(), 0, 0, rect.Width(), rect.Height(), 0, 0,
 		//img.cols/count, img.rows/count, img.data, m_pBitmapInfo, DIB_RGB_COLORS, SRCCOPY);
@@ -170,8 +170,8 @@ void CImageOpenDlg::OnBnClickedButtonImage()
 	strPoint2.Format(L"%04d, %04d", iWidth2, iHeight2);
 	m_TextSize2.SetWindowTextW(strPoint2);
 
-	trans_count_w = static_cast<float>(651) / m_matImage.cols;	// 이미지 가로 비율 
-	trans_count_h = static_cast<float>(572) / m_matImage.rows;  // 이미지 세로 비율
+	trans_count_w = static_cast<float>(501) / m_matImage.cols;	// 이미지 가로 비율 
+	trans_count_h = static_cast<float>(501) / m_matImage.rows;  // 이미지 세로 비율
 
 }
 void CImageOpenDlg::OnBnClickedButtonImagesave()
@@ -284,14 +284,14 @@ void CImageOpenDlg::OnMouseMove(UINT nFlags, CPoint point)
 	CDialogEx::OnMouseMove(nFlags, point);
 	ClientToScreen(&point);
 	GetDlgItem(IDC_PICTURE)->ScreenToClient(&point);
-	if (point.x > 651)
+	if (point.x > 501)
 	{
-		point.x = 651;
+		point.x = 501;
 		
 	}
-	if (point.y > 572)
+	if (point.y > 501)
 	{
-		point.y = 572;
+		point.y = 501;
 	}
 	if (point.x < 0)
 	{
@@ -306,7 +306,7 @@ void CImageOpenDlg::OnMouseMove(UINT nFlags, CPoint point)
 	//m_TextSize3.SetWindowTextW(strPoint5);
 
 	CString strPoint6;
-	strPoint6.Format(L"%04.1f, %04.1f", point.x/ trans_count_w*count, point.y/ trans_count_h*count);
+	strPoint6.Format(L"%04.1f, %04.1f", point.x/ trans_count_w/count, point.y/ trans_count_h/count);
 	m_TextSize3.SetWindowTextW(strPoint6);
 	
 
@@ -322,15 +322,17 @@ void CImageOpenDlg::OnBnClickedButtonImageEnlargement()
 	count = count * 0.5;
 	
 	//CPoint point;
-	//Mat dst1, dst2;
+	Mat dst;
 	//resize(m_matImage, dst1, Size(), 4, 4, INTER_NEAREST);
-	resize(c_matImage, c_matImage, Size(c_matImage.cols/count,c_matImage.rows/count), 0, 0, INTER_CUBIC);
+	resize(c_matImage, dst, Size(c_matImage.cols/count,c_matImage.rows/count), 0, 0, INTER_CUBIC);
 	
 	
 	//imshow("dst1", dst2(Rect(point.x,point.y, m_matImage.cols/4,m_matImage.rows/4)));
 	//waitKey();
 	
-	CreateBitmapInfo(c_matImage.cols, c_matImage.rows, c_matImage.channels() * 8);
+	CreateBitmapInfo(dst.cols, dst.rows,dst.channels() * 8);
+
+	c_matImage = dst;
 	DrawImage(c_matImage);
 	//DrawImage();
 }
@@ -340,13 +342,14 @@ void CImageOpenDlg::OnBnClickedButtonImageReduction()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 	
-	//Mat dst1, dst2;
+	Mat dst;
 
 	count = count * 2;
 
 	//resize(m_matImage, dst1, Size(), 4, 4, INTER_NEAREST);
-	resize(c_matImage, c_matImage, Size(m_matImage.cols / count, m_matImage.rows / count), 0,0, INTER_CUBIC);
-	CreateBitmapInfo(c_matImage.cols, c_matImage.rows, c_matImage.channels() * 8);
+	resize(c_matImage, dst, Size(c_matImage.cols / count, c_matImage.rows / count), 0,0, INTER_CUBIC);
+	CreateBitmapInfo(dst.cols, dst.rows, dst.channels() * 8);
+	c_matImage = dst;
 	DrawImage(c_matImage);
 	//DrawImage();
 }
@@ -569,9 +572,10 @@ void CImageOpenDlg::OnBnClickedButtonSobel()
 	magnitude(dx, dy, fmag);
 	fmag.convertTo(mag, CV_8UC1);
 
-	//c_matImage = mag > 150;
+	c_matImage = mag ;
 
-	DrawImage(mag);
+
+	DrawImage(c_matImage);
 }
 
 
@@ -583,7 +587,7 @@ void CImageOpenDlg::OnBnClickedButtonCannyedge()
 
 	c_matImage = dst1;
 
-	DrawImage(dst1);
+	DrawImage(c_matImage);
 }
 
 
@@ -667,7 +671,7 @@ void CImageOpenDlg::OnBnClickedButtonHoughline()
 	Canny(c_matImage, edge, 50, 150);
 
 	vector<Vec2f> lines;
-	HoughLines(edge, lines, trans_count_h, CV_PI / 180, 250);
+	HoughLines(edge, lines, 1, CV_PI / 180, 250);
 
 	Mat dst;
 	cvtColor(edge, dst, COLOR_GRAY2BGR);
@@ -683,7 +687,8 @@ void CImageOpenDlg::OnBnClickedButtonHoughline()
 		Point pt2(cvRound(x0 - alpha * (-sin_t)), cvRound(y0 - alpha * cos_t));
 		line(dst, pt1, pt2, Scalar(0, 0, 255), 2, LINE_AA);
 	}
-	DrawImage(dst);
+	c_matImage = dst;
+	DrawImage(c_matImage);
 	//imshow("허프직선", dst);
 	//waitKey();
 }
@@ -695,7 +700,9 @@ void CImageOpenDlg::OnBnClickedButtonBlur()
 	Mat blur;
 	GaussianBlur(c_matImage, blur, Size(3, 3), 0);
 
-	DrawImage(blur);
+	c_matImage = blur;
+
+	DrawImage(c_matImage);
 }
 
 
