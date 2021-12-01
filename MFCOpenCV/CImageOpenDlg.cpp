@@ -5,6 +5,7 @@
 #include "MFCOpenCV.h"
 #include "afxdialogex.h"
 #include "CImageOpenDlg.h"
+using namespace std;
 
 
 // CImageOpenDlg 대화 상자
@@ -65,14 +66,21 @@ void CImageOpenDlg::CreateBitmapInfo(int w, int h, int bpp)
 void CImageOpenDlg::DrawImage(Mat img)
 {
 	CClientDC dc(GetDlgItem(IDC_PICTURE));
+	CClientDC dc2(GetDlgItem(IDC_PICTURE_MINI));
 
 
 	//GetDlgItem(IDC_PICTURE)->ScreenToClient(&rect);
 	GetDlgItem(IDC_PICTURE)->GetClientRect(&rect);
-	
+	//GetDlgItem(IDC_PICTURE_MINI)->GetClientRect(&rect);
+
 	SetStretchBltMode(dc.GetSafeHdc(), COLORONCOLOR);
 	StretchDIBits(dc.GetSafeHdc(), 0, 0, rect.Width(), rect.Height() , 0, 0,
 		m_matImage.cols, m_matImage.rows, img.data, m_pBitmapInfo, DIB_RGB_COLORS, SRCCOPY);
+
+	SetStretchBltMode(dc2.GetSafeHdc(), COLORONCOLOR);
+	StretchDIBits(dc2.GetSafeHdc(), 0, 0, 99, 99, 0, 0,
+		m_matImage.cols, m_matImage.rows, img.data, m_pBitmapInfo, DIB_RGB_COLORS, SRCCOPY);
+
 	//StretchDIBits(dc.GetSafeHdc(), 0, 0, rect.Width(), rect.Height(), 0, 0,
 		//img.cols/count, img.rows/count, img.data, m_pBitmapInfo, DIB_RGB_COLORS, SRCCOPY);
 
@@ -110,6 +118,10 @@ BEGIN_MESSAGE_MAP(CImageOpenDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_SOBEL, &CImageOpenDlg::OnBnClickedButtonSobel)
 	ON_BN_CLICKED(IDC_BUTTON_CANNYEDGE, &CImageOpenDlg::OnBnClickedButtonCannyedge)
 	ON_BN_CLICKED(IDC_BUTTON_CIRCLEDETECT, &CImageOpenDlg::OnBnClickedButtonCircledetect)
+	ON_BN_CLICKED(IDC_BUTTON_PWEWITT, &CImageOpenDlg::OnBnClickedButtonPwewitt)
+	ON_BN_CLICKED(IDC_BUTTON_HOUGHLINE, &CImageOpenDlg::OnBnClickedButtonHoughline)
+	ON_BN_CLICKED(IDC_BUTTON_BLUR, &CImageOpenDlg::OnBnClickedButtonBlur)
+	ON_BN_CLICKED(IDC_BUTTON_IMAGESAVE, &CImageOpenDlg::OnBnClickedButtonImagesave)
 END_MESSAGE_MAP()
 
 
@@ -161,6 +173,48 @@ void CImageOpenDlg::OnBnClickedButtonImage()
 	trans_count_w = static_cast<float>(651) / m_matImage.cols;	// 이미지 가로 비율 
 	trans_count_h = static_cast<float>(572) / m_matImage.rows;  // 이미지 세로 비율
 
+}
+void CImageOpenDlg::OnBnClickedButtonImagesave()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+
+	
+
+	CString szFilter = _T("image file(*.jpg;*.bmp;*.png;)|*.jpg;*.bmp;*.png;|All Files(*.*)|*.*||");
+
+	CFileDialog dlg(FALSE,
+		_T("*.*"),
+		_T("*.*"),
+		OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,
+		(LPCTSTR)szFilter.GetBuffer(), //(LPCTSTR)(szFilter),
+		this
+	);
+	CString path = dlg.GetPathName();
+
+
+	dlg.m_ofn.lpstrTitle = _T("Image Save As");
+	dlg.m_ofn.lpstrInitialDir = _T("");  //기본 경로 설정
+
+	if (dlg.DoModal() == IDOK)
+	{
+
+		CString check = dlg.GetFileExt();  // 파일형식 얻기
+
+		if (check == "bmp" || check == "jpg")
+
+		{
+
+			path = dlg.GetPathName();    // 파일 전체 경로 얻기
+
+			CT2CA pszString(path);
+			std::string strPath(pszString);
+			imwrite(strPath, c_matImage);  // 이미지 저장
+
+
+		}
+
+		else AfxMessageBox(_T("확장자를 올바르게 선택하여 주십시오."));
+	}
 }
 
 
@@ -465,7 +519,7 @@ void CImageOpenDlg::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 	{
 
 		// 이 부분은 Scroll기능이 있는 뷰를 사용시 사용된다.
-		int ScrollPos = GetScrollPos(SB_VERT); // 세로 스크롤바 포지션 구하기
+		int ScrollPos = GetScrollPos(SB_HORZ); // 세로 스크롤바 포지션 구하기
 																	  // 가로는: SB_HORZ
 
 		switch (nSBCode)
@@ -515,9 +569,9 @@ void CImageOpenDlg::OnBnClickedButtonSobel()
 	magnitude(dx, dy, fmag);
 	fmag.convertTo(mag, CV_8UC1);
 
-	c_matImage = mag > 150;
+	//c_matImage = mag > 150;
 
-	DrawImage(c_matImage);
+	DrawImage(mag);
 }
 
 
@@ -554,3 +608,94 @@ void CImageOpenDlg::OnBnClickedButtonCircledetect()
 	imshow("dst", dst);
 	waitKey();
 }
+
+
+void CImageOpenDlg::OnBnClickedButtonPwewitt()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+
+	Mat prewitt;
+
+	//maded_prewitt(m_matImage, prewitt, 100);
+	//maded_prewitt(m_matImage, c_matImage, 100);
+
+	
+
+	
+	DrawImage(c_matImage);
+	//imshow("프리윗마스크",prewitt);
+	//waitKey();
+}
+
+void CImageOpenDlg::maded_prewitt(const Mat& image, Mat& result, int thresh)
+{
+	// 수직마스크
+	Mat maskX = (Mat_<double>(3, 3) << -1, 0, 1, -1, 0, 1, -1, 0, 1);
+	// 수평마스크
+	Mat maskY = (Mat_<double>(3, 3) << 1, 1, 1, 0, 0, 0, -1, -1, -1);
+
+	int filterOffset = 3 / 2;
+
+	result = Mat::zeros(image.rows - filterOffset * 2, image.cols - filterOffset * 2, image.type());
+
+	double sumEdgeX;
+	double sumEdgeY;
+	double magnitude;
+
+	for (int yimage = filterOffset; yimage < image.rows - filterOffset; ++yimage) {
+		for (int ximage = filterOffset; ximage < image.cols - filterOffset; ++ximage) {
+
+			sumEdgeX = 0;
+			sumEdgeY = 0;
+			for (int ymask = -filterOffset; ymask <= filterOffset; ++ymask) {
+				for (int xmask = -filterOffset; xmask <= filterOffset; ++xmask) {
+					sumEdgeX += image.at<uchar>(yimage + ymask, ximage + xmask) * maskX.at<double>(filterOffset + ymask, filterOffset + xmask);
+					sumEdgeY += image.at<uchar>(yimage + ymask, ximage + xmask) * maskY.at<double>(filterOffset + ymask, filterOffset + xmask);
+				}
+			}
+			magnitude = sqrt(pow(sumEdgeY, 2) + pow(sumEdgeX, 2));
+			result.at<uchar>(yimage - filterOffset, ximage - filterOffset) = ((magnitude > thresh) ? 255 : 0);
+		}
+	}
+}
+
+
+void CImageOpenDlg::OnBnClickedButtonHoughline()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	Mat edge;
+	Canny(c_matImage, edge, 50, 150);
+
+	vector<Vec2f> lines;
+	HoughLines(edge, lines, trans_count_h, CV_PI / 180, 250);
+
+	Mat dst;
+	cvtColor(edge, dst, COLOR_GRAY2BGR);
+
+	for (size_t i = 0; i < lines.size(); i++)
+	{
+		float r = lines[i][0], t = lines[i][1];
+		double cos_t = cos(t), sin_t = sin(t);
+		double x0 = r * cos_t, y0 = r * sin_t;
+		double alpha = 1000;
+
+		Point pt1(cvRound(x0 + alpha * (-sin_t)), cvRound(y0 + alpha * cos_t));
+		Point pt2(cvRound(x0 - alpha * (-sin_t)), cvRound(y0 - alpha * cos_t));
+		line(dst, pt1, pt2, Scalar(0, 0, 255), 2, LINE_AA);
+	}
+	DrawImage(dst);
+	//imshow("허프직선", dst);
+	//waitKey();
+}
+
+
+void CImageOpenDlg::OnBnClickedButtonBlur()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	Mat blur;
+	GaussianBlur(c_matImage, blur, Size(3, 3), 0);
+
+	DrawImage(blur);
+}
+
+

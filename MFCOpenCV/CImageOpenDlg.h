@@ -65,4 +65,9 @@ public:
 	afx_msg void OnBnClickedButtonSobel();
 	afx_msg void OnBnClickedButtonCannyedge();
 	afx_msg void OnBnClickedButtonCircledetect();
+	afx_msg void OnBnClickedButtonPwewitt();
+	void maded_prewitt(const Mat& image, Mat& result, int thresh);
+	afx_msg void OnBnClickedButtonHoughline();
+	afx_msg void OnBnClickedButtonBlur();
+	afx_msg void OnBnClickedButtonImagesave();
 };
