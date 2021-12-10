@@ -131,7 +131,7 @@ END_MESSAGE_MAP()
 void CImageOpenDlg::OnBnClickedButtonImage()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-	CFileDialog fileDlg(TRUE, NULL, NULL, OFN_READONLY, _T("image file(*.jpg;*.bmp;*.png;)|*.jpg;*.bmp;*.png;|All Files(*.*)|*.*||"));
+	CFileDialog fileDlg(TRUE, NULL, NULL, OFN_READONLY, _T("image file(*.jpg;)|*.jpg;|All Files(*.*)|*.*||"));
 	if (fileDlg.DoModal() == IDOK)
 	{
 		CString path = fileDlg.GetPathName();
@@ -245,10 +245,39 @@ void CImageOpenDlg::OnPaint()
 		POINT t; 
 		t.x = c.x + origin.x;
 		t.y = c.y + origin.y;
-		SetStretchBltMode(dc.GetSafeHdc(), COLORONCOLOR);
-		StretchDIBits(dc.GetSafeHdc(), 0, 0, t.x*trans_count_w, t.y* trans_count_w, 0, 0,
-			c_matImage.cols * count, c_matImage.rows * count, c_matImage.data, m_pBitmapInfo, DIB_RGB_COLORS, SRCCOPY);
+		// SetStretchBltMode(dc.GetSafeHdc(), COLORONCOLOR);
+		// StretchDIBits(dc.GetSafeHdc(), 0, 0, t.x*trans_count_w, t.y* trans_count_h, 0, 0,
+		//	c_matImage.cols * count, c_matImage.rows * count, c_matImage.data, m_pBitmapInfo, DIB_RGB_COLORS, SRCCOPY);
 		
+
+		SCROLLINFO scrInfo; int iSrcX = 0; if (NULL == m_HScroll.GetSafeHwnd()) {
+			CRect rectHScroll; 
+			rectHScroll.SetRect(rect.left, rect.top, rect.right, rect.bottom);
+			m_HScroll.Create(WS_CHILD | WS_VISIBLE | SBS_HORZ | SBS_BOTTOMALIGN // 속성 
+				, rectHScroll // 위치 
+				, GetDlgItem(IDC_PICTURE) // 부모 윈도우 
+				, 0 // 스크롤 막대의 컨트롤 ID입니다 
+			); 
+				m_HScroll.ShowScrollBar( TRUE ); 
+			scrInfo.cbSize = sizeof( scrInfo ); 
+			scrInfo.fMask = SIF_ALL; 
+			scrInfo.nMin = 0; // 스크롤 최소값 
+			scrInfo.nMax = 10; // 스크롤 최대값 
+			scrInfo.nPage = rect.Width(); // 페이지 번호 
+			scrInfo.nTrackPos = 0; // 드래깅 상태의 트랙바 위치 
+			scrInfo.nPos = 0; // 트랙바 위치 
+			m_HScroll.SetScrollRange( scrInfo.nMin, scrInfo.nMax ); // 범위 설정
+			m_HScroll.SetScrollPos( scrInfo.nPos ); // 위치 설정
+			m_HScroll.SetScrollInfo( &scrInfo ); // 스크롤바 정보 설정 
+		} 
+		else {
+			if (FALSE != m_HScroll.GetScrollInfo(&scrInfo))
+			{
+				iSrcX = scrInfo.nPos; // 현재 스크롤 위치 받아옴 } 
+			}
+			dc.BitBlt(0, 0, 501, 501, &dc, iSrcX, 0, SRCCOPY); // 더블 버퍼링
+			
+		}
 	}
 }
 
@@ -348,7 +377,7 @@ void CImageOpenDlg::OnBnClickedButtonImageEnlargement()
 	//CPoint point;
 	Mat dst;
 	//resize(m_matImage, dst1, Size(), 4, 4, INTER_NEAREST);
-	resize(c_matImage, dst, Size(c_matImage.cols/count,c_matImage.rows/count), 0, 0, INTER_CUBIC);
+	resize(c_matImage, dst, Size(c_matImage.cols,c_matImage.rows), 0, 0, INTER_CUBIC);
 	
 	
 	//imshow("dst1", dst2(Rect(point.x,point.y, m_matImage.cols/4,m_matImage.rows/4)));
@@ -371,7 +400,7 @@ void CImageOpenDlg::OnBnClickedButtonImageReduction()
 	count = count * 2;
 
 	//resize(m_matImage, dst1, Size(), 4, 4, INTER_NEAREST);
-	resize(c_matImage, dst, Size(c_matImage.cols / count, c_matImage.rows / count), 0,0, INTER_CUBIC);
+	resize(c_matImage, dst, Size(c_matImage.cols , c_matImage.rows ), 0,0, INTER_CUBIC);
 	CreateBitmapInfo(dst.cols, dst.rows, dst.channels() * 8);
 	c_matImage = dst;
 	DrawImage(c_matImage);
@@ -450,7 +479,7 @@ BOOL CImageOpenDlg::OnEraseBkgnd(CDC* pDC)
 {
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
 
-	return CDialogEx::OnEraseBkgnd(pDC);
+	return TRUE;
 }
 
 
