@@ -240,7 +240,15 @@ void CImageOpenDlg::OnPaint()
 	}
 	else
 	{
+		CClientDC dc(GetDlgItem(IDC_PICTURE));
 		CDialogEx::OnPaint();
+		POINT t; 
+		t.x = c.x + origin.x;
+		t.y = c.y + origin.y;
+		SetStretchBltMode(dc.GetSafeHdc(), COLORONCOLOR);
+		StretchDIBits(dc.GetSafeHdc(), 0, 0, t.x*trans_count_w, t.y* trans_count_w, 0, 0,
+			c_matImage.cols * count, c_matImage.rows * count, c_matImage.data, m_pBitmapInfo, DIB_RGB_COLORS, SRCCOPY);
+		
 	}
 }
 
@@ -265,6 +273,22 @@ BOOL CImageOpenDlg::OnInitDialog()
 	// TODO:  여기에 추가 초기화 작업을 추가합니다.
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
+
+	CRect VScroll;
+	CRect HScroll;
+
+	m_VScroll.GetWindowRect(&VScroll); // 수직 스크롤바 위치 가져오기
+	m_HScroll.GetWindowRect(&HScroll); // 수평 스크롤바 위치 가져오기
+
+	m_VScroll.SetScrollRange(0, VScroll.Height()); // 수직 스크롤바 범위 설정
+	m_HScroll.SetScrollRange(0, HScroll.Width());  // 수평 스크롤바 범위 설정
+
+	c.x = 0;
+	c.y = 0;
+
+	origin.x = HScroll.left;
+	origin.y = VScroll.top;
+
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 				  // 예외: OCX 속성 페이지는 FALSE를 반환해야 합니다.
@@ -374,84 +398,19 @@ void CImageOpenDlg::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 	//m_VScroll.SetScrollRange(0, 572);
 	//m_VScroll.SetScrollPos(572);
 
-	SCROLLINFO  scrinfo;
-	scrinfo.cbSize = sizeof(scrinfo);
-	scrinfo.fMask = SIF_ALL;
-	scrinfo.nMin = 0;          // 최소값
-	scrinfo.nMax = m_matImage.rows;      // 최대값
-	scrinfo.nPage = 10;      // 페이지단위 증가값
-	scrinfo.nTrackPos = 0;  // 트랙바가 움직일때의 위치값
-	scrinfo.nPos = 572;        // 위치
-	m_VScroll.SetScrollInfo(&scrinfo);
+	if (pScrollBar->GetSafeHwnd() == m_VScroll.GetSafeHwnd()) {
+		int pos;
+		pos = m_VScroll.GetScrollPos();
 
-	if (pScrollBar)
-	{
+		if (nSBCode == SB_LINEDOWN) m_VScroll.SetScrollPos(pos + 10);
+		else if (nSBCode == SB_LINEUP) m_VScroll.SetScrollPos(pos - 10);
+		else if (nSBCode == SB_PAGEUP) m_VScroll.SetScrollPos(pos - 50);
+		else if (nSBCode == SB_PAGEDOWN) m_VScroll.SetScrollPos(pos + 50);
+		else if (nSBCode == SB_THUMBTRACK) m_VScroll.SetScrollPos(nPos);
 
-		// 스크롤 바 검사
-
-		if (pScrollBar == (CScrollBar*)&m_VScroll)
-
-		{
-			SCROLLINFO  scrinfo;
-			// 스크롤바 정보를 가져온다.
-			if (pScrollBar->GetScrollInfo(&scrinfo))
-			{
-				switch (nSBCode)
-				{
-				case SB_PAGEUP:   // 스크롤 바의 위쪽 바를 클릭
-					scrinfo.nPos -= scrinfo.nPage;
-					break;
-				case SB_PAGEDOWN:  // 스크롤 바의 아래쪽 바를 클릭
-					scrinfo.nPos += scrinfo.nPage;
-					break;
-				case SB_LINEUP:   // 스크롤 바의 위쪽 화살표를 클릭
-					scrinfo.nPos -= scrinfo.nPage / 10;
-					break;
-				case SB_LINEDOWN:  // 스크롤 바의 아래쪽 화살표를 클릭
-					scrinfo.nPos += scrinfo.nPage / 10;
-					break;
-				case SB_THUMBPOSITION: // 스크롤바의 트랙이 움직이고 나서
-				case SB_THUMBTRACK:  // 스크롤바의 트랙이 움직이는 동안
-					scrinfo.nPos = scrinfo.nTrackPos;   // 16bit값 이상을 사용
-
-					break;
-				}
-
-
-				// 스크롤바의 위치를 변경한다.
-				pScrollBar->SetScrollPos(scrinfo.nPos);
-
-			}
-
-		}
-	}
-
-	else
-
-	{
-
-		// 이 부분은 Scroll기능이 있는 뷰를 사용시 사용된다.
-		int ScrollPos = GetScrollPos(SB_VERT); // 세로 스크롤바 포지션 구하기
-																	  // 가로는: SB_HORZ
-
-		switch (nSBCode)
-		{
-		case SB_PAGEUP:        // 스크롤 바의 위쪽 바를 클릭
-		case SB_PAGEDOWN:  // 스크롤 바의 아래쪽 바를 클릭
-		case SB_LINEUP:         // 스크롤 바의 위쪽 화살표를 클릭
-		case SB_LINEDOWN:    // 스크롤 바의 아래쪽 화살표를 클릭
-			CDialog::OnVScroll(nSBCode, nPos, pScrollBar);
-			break;
-		case SB_THUMBPOSITION:  // 스크롤바의 트랙이 움직이고 나서
-		case SB_THUMBTRACK:      // 스크롤바의 트랙이 움직이는 동안
-
-			scrinfo.nPos = scrinfo.nTrackPos;
-			// 스크롤바의 위치를 변경한다.
-			SetScrollPos(SB_VERT, scrinfo.nPos);
-			Invalidate(FALSE);
-			break;
-		}
-
+		c.y = m_VScroll.GetScrollPos();
+		OnPaint();
+		CDialogEx::OnVScroll(nSBCode, nPos, pScrollBar);
 	}
 
 
@@ -465,89 +424,23 @@ void CImageOpenDlg::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 	//m_HScroll.SetScrollRange(0, 651);
 	//m_HScroll.SetScrollPos(0);
 
-	SCROLLINFO  scrinfo;
-	scrinfo.cbSize = sizeof(scrinfo);
-	scrinfo.fMask = SIF_ALL;
-	scrinfo.nMin = 0;          // 최소값
-	scrinfo.nMax = m_matImage.cols;      // 최대값
-	scrinfo.nPage = 10;      // 페이지단위 증가값
-	scrinfo.nTrackPos = 0;  // 트랙바가 움직일때의 위치값
-	scrinfo.nPos = 0;        // 위치
-	m_VScroll.SetScrollInfo(&scrinfo);
+	if (pScrollBar->GetSafeHwnd() == m_HScroll.GetSafeHwnd()) {
+		// Scroll Bar ID 확인 (복수개의 Scroll Bar 가 있을수 있기 때문)
+		int pos;
+		pos = m_HScroll.GetScrollPos();   // 현재 위치 가져옴
 
-	if (pScrollBar)
-	{
+		if (nSBCode == SB_LINEDOWN) m_HScroll.SetScrollPos(pos + 10);    // Line 단위 이동 event
+		else if (nSBCode == SB_LINEUP) m_HScroll.SetScrollPos(pos - 10);
+		else if (nSBCode == SB_PAGEUP) m_HScroll.SetScrollPos(pos - 50);    // Page 단위 이동 event
+		else if (nSBCode == SB_PAGEDOWN) m_HScroll.SetScrollPos(pos + 50);
+		else if (nSBCode == SB_THUMBTRACK) m_HScroll.SetScrollPos(nPos);   // 스크롤 헤더를 마우스로 끌때 event
 
-		// 스크롤 바 검사
-
-		if (pScrollBar == (CScrollBar*)&m_HScroll)
-
-		{
-			SCROLLINFO  scrinfo;
-			// 스크롤바 정보를 가져온다.
-			if (pScrollBar->GetScrollInfo(&scrinfo))
-			{
-				switch (nSBCode)
-				{
-				case SB_PAGEUP:   // 스크롤 바의 위쪽 바를 클릭
-					scrinfo.nPos -= scrinfo.nPage;
-					break;
-				case SB_PAGEDOWN:  // 스크롤 바의 아래쪽 바를 클릭
-					scrinfo.nPos += scrinfo.nPage;
-					break;
-				case SB_LINEUP:   // 스크롤 바의 위쪽 화살표를 클릭
-					scrinfo.nPos -= scrinfo.nPage / 10;
-					break;
-				case SB_LINEDOWN:  // 스크롤 바의 아래쪽 화살표를 클릭
-					scrinfo.nPos += scrinfo.nPage / 10;
-					break;
-				case SB_THUMBPOSITION: // 스크롤바의 트랙이 움직이고 나서
-				case SB_THUMBTRACK:  // 스크롤바의 트랙이 움직이는 동안
-					scrinfo.nPos = scrinfo.nTrackPos;   // 16bit값 이상을 사용
-
-					break;
-				}
-
-
-				// 스크롤바의 위치를 변경한다.
-				pScrollBar->SetScrollPos(scrinfo.nPos);
-
-			}
-
-		}
-	}
-
-	else
-
-	{
-
-		// 이 부분은 Scroll기능이 있는 뷰를 사용시 사용된다.
-		int ScrollPos = GetScrollPos(SB_HORZ); // 세로 스크롤바 포지션 구하기
-																	  // 가로는: SB_HORZ
-
-		switch (nSBCode)
-		{
-		case SB_PAGEUP:        // 스크롤 바의 위쪽 바를 클릭
-		case SB_PAGEDOWN:  // 스크롤 바의 아래쪽 바를 클릭
-		case SB_LINEUP:         // 스크롤 바의 위쪽 화살표를 클릭
-		case SB_LINEDOWN:    // 스크롤 바의 아래쪽 화살표를 클릭
-			CDialog::OnHScroll(nSBCode, nPos, pScrollBar);
-			break;
-		case SB_THUMBPOSITION:  // 스크롤바의 트랙이 움직이고 나서
-		case SB_THUMBTRACK:      // 스크롤바의 트랙이 움직이는 동안
-
-			scrinfo.nPos = scrinfo.nTrackPos;
-			// 스크롤바의 위치를 변경한다.
-			SetScrollPos(SB_VERT, scrinfo.nPos);
-			Invalidate(FALSE);
-			break;
-		}
+		c.x = m_HScroll.GetScrollPos();  // 현재 위치를 Point 에 저장
+		OnPaint();   // 윈도우 다시 그리기
 
 	}
 
-
-
-
+	CDialogEx::OnHScroll(nSBCode, nPos, pScrollBar);
 
 }
 

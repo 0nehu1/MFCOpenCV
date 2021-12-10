@@ -32,7 +32,8 @@ public:
 	void DrawImage(Mat img); // 그리는 작업을 수행하는 함수.
 	long double trans_count_w = 1; // 가로 비율
 	long double trans_count_h = 1; // 세로 비율
-
+	POINT c;
+	POINT origin;
 	long double count=1;
 
 	CRect rect;
