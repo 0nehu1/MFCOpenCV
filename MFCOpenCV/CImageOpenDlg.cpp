@@ -69,10 +69,10 @@ void CImageOpenDlg::DrawImage(Mat img)
 	CClientDC dc2(GetDlgItem(IDC_PICTURE_MINI));
 
 	//CClientDC dc(GetDlgItem(IDC_PICTURE));
-	CDialogEx::OnPaint();
-	CDC dcTemp; dcTemp.CreateCompatibleDC(&dc);
-	HBITMAP hbmp = ::CreateCompatibleBitmap(dc, 501, rect.Height() - 20); // 가로 10000 크기로 생성 
-	HBITMAP hbmpOld = (HBITMAP)dcTemp.SelectObject(hbmp);
+	//CDialogEx::OnPaint();
+	//CDC dcTemp; dcTemp.CreateCompatibleDC(&dc);
+	//HBITMAP hbmp = ::CreateCompatibleBitmap(dc, 501, rect.Height() - 20); // 가로 10000 크기로 생성 
+	//HBITMAP hbmpOld = (HBITMAP)dcTemp.SelectObject(hbmp);
 
 
 	POINT t;
@@ -83,9 +83,16 @@ void CImageOpenDlg::DrawImage(Mat img)
 	//	c_matImage.cols * count, c_matImage.rows * count, c_matImage.data, m_pBitmapInfo, DIB_RGB_COLORS, SRCCOPY);
 
 	CRect rectHScroll;
+	CRect rectVScroll;
 	GetDlgItem(IDC_PICTURE)->GetClientRect(&rectHScroll);
 	GetDlgItem(IDC_PICTURE)->GetClientRect(&rect);
-	SCROLLINFO scrInfo; int iSrcX = 0; if (NULL == m_HScroll.GetSafeHwnd()) {
+	GetDlgItem(IDC_PICTURE)->GetClientRect(&rectVScroll);
+
+	SCROLLINFO VscrInfo{};
+	SCROLLINFO HscrInfo{};
+	int iSrcX = 0;
+	int iSrcY = 0;
+	if (NULL == m_HScroll.GetSafeHwnd()&& NULL == m_VScroll.GetSafeHwnd()) {
 
 		rectHScroll.SetRect(rect.left, rect.top, rect.right, rect.bottom);
 		m_HScroll.Create(WS_CHILD | WS_VISIBLE | SBS_HORZ | SBS_BOTTOMALIGN // 속성 
@@ -94,40 +101,78 @@ void CImageOpenDlg::DrawImage(Mat img)
 			, 0 // 스크롤 막대의 컨트롤 ID입니다 
 		);
 		m_HScroll.ShowScrollBar(TRUE);
-		scrInfo.cbSize = sizeof(scrInfo);
-		scrInfo.fMask = SIF_ALL;
-		scrInfo.nMin = 0; // 스크롤 최소값 
-		scrInfo.nMax = 1; // 스크롤 최대값 
-		scrInfo.nPage = rect.Width(); // 페이지 번호 
-		scrInfo.nTrackPos = 0; // 드래깅 상태의 트랙바 위치 
-		scrInfo.nPos = 0; // 트랙바 위치 
-		m_HScroll.SetScrollRange(scrInfo.nMin, scrInfo.nMax); // 범위 설정
-		m_HScroll.SetScrollPos(scrInfo.nPos); // 위치 설정
-		m_HScroll.SetScrollInfo(&scrInfo); // 스크롤바 정보 설정 
+		HscrInfo.cbSize = sizeof(HscrInfo);
+		HscrInfo.fMask = SIF_ALL;
+		HscrInfo.nMin = 0; // 스크롤 최소값 
+		HscrInfo.nMax = rect.Width(); // 스크롤 최대값 
+		HscrInfo.nPage = rect.Width(); // 페이지 번호 
+		HscrInfo.nTrackPos = 0; // 드래깅 상태의 트랙바 위치 
+		HscrInfo.nPos = 0; // 트랙바 위치 
+		m_HScroll.SetScrollRange(HscrInfo.nMin, HscrInfo.nMax); // 범위 설정
+		m_HScroll.SetScrollPos(HscrInfo.nPos); // 위치 설정
+		m_HScroll.SetScrollInfo(&HscrInfo); // 스크롤바 정보 설정 
+
+
+		rectVScroll.SetRect(rect.left, rect.top, rect.right, rect.bottom);
+		m_VScroll.Create(WS_CHILD | WS_VISIBLE | SBS_VERT | SBS_RIGHTALIGN // 속성 
+			, rectVScroll // 위치 
+			, GetDlgItem(IDC_PICTURE) // 부모 윈도우 
+			, 1 // 스크롤 막대의 컨트롤 ID입니다 
+		);
+		m_VScroll.ShowScrollBar(TRUE);
+		VscrInfo.cbSize = sizeof(VscrInfo);
+		VscrInfo.fMask = SIF_ALL;
+		VscrInfo.nMin = 0; // 스크롤 최소값 
+		VscrInfo.nMax = 501; // 스크롤 최대값 
+		VscrInfo.nPage = rect.Height(); // 페이지 번호 
+		VscrInfo.nTrackPos = 0; // 드래깅 상태의 트랙바 위치 
+		VscrInfo.nPos = 0; // 트랙바 위치 
+		m_VScroll.SetScrollRange(VscrInfo.nMin, VscrInfo.nMax); // 범위 설정
+		m_VScroll.SetScrollPos(VscrInfo.nPos); // 위치 설정
+		m_VScroll.SetScrollInfo(&VscrInfo); // 스크롤바 정보 설정 
 	}
 	else {
-		if (FALSE != m_HScroll.GetScrollInfo(&scrInfo))
+		if (FALSE != m_HScroll.GetScrollInfo(&HscrInfo)&& FALSE != m_VScroll.GetScrollInfo(&VscrInfo))
 		{
-			iSrcX = scrInfo.nPos; // 현재 스크롤 위치 받아옴 } 
+			iSrcX = HscrInfo.nPos; // 현재 스크롤 위치 받아옴 
+			iSrcY = VscrInfo.nPos;
 		}
-		dc.BitBlt(0, 0, 501, 501, &dc, iSrcX, 0, SRCCOPY); // 더블 버퍼링
+		//dc.BitBlt(0, 0, 501, 501, &dc, iSrcX, iSrcY, SRCCOPY); // 더블 버퍼링
 
 	}
-	int pos = m_HScroll.GetScrollPos();
+
+	//int Hpos = m_HScroll.GetScrollPos();
+	//int Vpos = m_VScroll.GetScrollPos();
+
+	int Hpos = m_HScroll.GetScrollPos();
+	int Vpos = m_VScroll.GetScrollPos();
 	//GetDlgItem(IDC_PICTURE)->ScreenToClient(&rect);
 	GetDlgItem(IDC_PICTURE)->GetClientRect(&rect);
 	//GetDlgItem(IDC_PICTURE_MINI)->GetClientRect(&rect);
+	
+		//  스크롤 가로세로출력
+	CString strPoint2;
+	strPoint2.Format(L"%04d, %04d", Hpos, Vpos);
+	m_TextSize2.SetWindowTextW(strPoint2);
 
-	SetStretchBltMode(dc.GetSafeHdc(), COLORONCOLOR);
-	StretchDIBits(dc.GetSafeHdc(), 0, 0, rect.Width(), rect.Height() , pos, 0,
-		(c_matImage.cols+pos)/count, c_matImage.rows, img.data, m_pBitmapInfo, DIB_RGB_COLORS, SRCCOPY);
-
+		SetStretchBltMode(dc.GetSafeHdc(), COLORONCOLOR);
+		StretchDIBits(dc.GetSafeHdc(), 0, 0, rect.Width(), rect.Height(), Hpos, Vpos,
+			(c_matImage.cols + Hpos) / count, (c_matImage.rows-Vpos)/count, img.data, m_pBitmapInfo, DIB_RGB_COLORS, SRCCOPY);
+	
+	
 	//SetDIBitsToDevice(dc.GetSafeHdc(), 0, 0, rect.Width(), rect.Height(), 0, 0, 0,
 	//	c_matImage.rows / count, c_matImage.data, m_pBitmapInfo, DIB_RGB_COLORS);
-
+		 
 	SetStretchBltMode(dc2.GetSafeHdc(), COLORONCOLOR);
 	StretchDIBits(dc2.GetSafeHdc(), 0, 0, 99, 99, 0, 0,
 		c_matImage.cols, c_matImage.rows, img.data, m_pBitmapInfo, DIB_RGB_COLORS, SRCCOPY);
+
+	//CClientDC dc(this);
+
+	CPen pen;
+	pen.CreatePen(PS_DEFAULT, 0, RGB(255, 0 ,0));    // 펜을 생성
+	CPen* oldPen = dc2.SelectObject(&pen);
+	dc2.Rectangle(0, 99, 99/count, 99/count);
 
 	//StretchDIBits(dc.GetSafeHdc(), 0, 0, rect.Width(), rect.Height(), 0, 0,
 		//img.cols/count, img.rows/count, img.data, m_pBitmapInfo, DIB_RGB_COLORS, SRCCOPY);
@@ -282,15 +327,15 @@ void CImageOpenDlg::OnPaint()
 		int x = (rect.Width()  - cxIcon + 1) / 2;
 		int y = (rect.Height()  - cyIcon + 1) / 2;
 
+
+
 		// Draw the icon
 		dc.DrawIcon(x, y, m_hIcon);
 		
 	}
 	else
 	{
-		
-
-		
+	
 	}
 }
 
@@ -407,9 +452,15 @@ void CImageOpenDlg::OnBnClickedButtonImageEnlargement()
 void CImageOpenDlg::OnBnClickedButtonImageReduction()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-	
+	//CClientDC dc(this);
 	Mat dst;
+	CClientDC dc(this);
 
+	CPen pen;
+	pen.CreatePen(PS_DOT, 0, RGB(255, 255, 255));    // 펜을 생성
+	CPen* oldPen = dc.SelectObject(&pen);
+	dc.Rectangle(0, 0, 551, 551);
+	
 	count = count * 0.5;
 
 	//resize(m_matImage, dst1, Size(), 4, 4, INTER_NEAREST);
@@ -418,6 +469,8 @@ void CImageOpenDlg::OnBnClickedButtonImageReduction()
 	c_matImage = dst;
 	DrawImage(c_matImage);
 	//DrawImage();
+	dc.SelectObject(oldPen);
+	pen.DeleteObject();
 }
 
 
@@ -440,21 +493,31 @@ void CImageOpenDlg::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 	//m_VScroll.SetScrollRange(0, 572);
 	//m_VScroll.SetScrollPos(572);
 
-	if (pScrollBar->GetSafeHwnd() == m_VScroll.GetSafeHwnd()) {
-		int pos;
-		pos = m_VScroll.GetScrollPos();
+	if (count > 1)
+	{
+		if (pScrollBar->GetSafeHwnd() == m_VScroll.GetSafeHwnd()) {
+			int pos;
+			//double rate = 1800 / 553;
+			pos = m_VScroll.GetScrollPos()*count;
 
-		if (nSBCode == SB_LINEDOWN) m_VScroll.SetScrollPos(pos + 10);
-		else if (nSBCode == SB_LINEUP) m_VScroll.SetScrollPos(pos - 10);
-		else if (nSBCode == SB_PAGEUP) m_VScroll.SetScrollPos(pos - 50);
-		else if (nSBCode == SB_PAGEDOWN) m_VScroll.SetScrollPos(pos + 50);
-		else if (nSBCode == SB_THUMBTRACK) m_VScroll.SetScrollPos(nPos);
+			if (nSBCode == SB_LINEDOWN) 
+				m_VScroll.SetScrollPos(pos + 10);
+			else if (nSBCode == SB_LINEUP)
+				m_VScroll.SetScrollPos(pos - 10);
+			else if (nSBCode == SB_PAGEUP) 
+				m_VScroll.SetScrollPos(pos - 50);
+			else if (nSBCode == SB_PAGEDOWN) 
+				m_VScroll.SetScrollPos(pos + 50);
+			else if (nSBCode == SB_THUMBTRACK) 
+				m_VScroll.SetScrollPos(nPos);
 
-		c.y = m_VScroll.GetScrollPos();
-		OnPaint();
+			c.y = m_VScroll.GetScrollPos();
+			DrawImage(c_matImage);   // 윈도우 다시 그리기
+
+			
+		}
 		CDialogEx::OnVScroll(nSBCode, nPos, pScrollBar);
 	}
-
 
 
 }
@@ -465,25 +528,32 @@ void CImageOpenDlg::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
 	//m_HScroll.SetScrollRange(0, 651);
 	//m_HScroll.SetScrollPos(0);
-
+	if(count>1)
+	{
 	if (pScrollBar->GetSafeHwnd() == m_HScroll.GetSafeHwnd()) {
 		// Scroll Bar ID 확인 (복수개의 Scroll Bar 가 있을수 있기 때문)
-		int pos;
+		double pos;
+		double rate = 2592 / 620;
 		pos = m_HScroll.GetScrollPos();   // 현재 위치 가져옴
 
-		if (nSBCode == SB_LINEDOWN) m_HScroll.SetScrollPos(pos + 10);    // Line 단위 이동 event
-		else if (nSBCode == SB_LINEUP) m_HScroll.SetScrollPos(pos - 10);
-		else if (nSBCode == SB_PAGEUP) m_HScroll.SetScrollPos(pos - 50);    // Page 단위 이동 event
-		else if (nSBCode == SB_PAGEDOWN) m_HScroll.SetScrollPos(pos + 50);
+		if (nSBCode == SB_LINEDOWN) 
+			m_HScroll.SetScrollPos(pos + 10);    // Line 단위 이동 event
+		else if (nSBCode == SB_LINEUP) 
+			m_HScroll.SetScrollPos(pos - 10);
+		else if (nSBCode == SB_PAGEUP) 
+			m_HScroll.SetScrollPos(pos - 50);    // Page 단위 이동 event
+		else if (nSBCode == SB_PAGEDOWN) 
+			m_HScroll.SetScrollPos(pos + 50);
 		else if (nSBCode == SB_THUMBTRACK) m_HScroll.SetScrollPos(nPos);   // 스크롤 헤더를 마우스로 끌때 event
 
-		c.x = m_HScroll.GetScrollPos();  // 현재 위치를 Point 에 저장
+
+		c.x = m_HScroll.GetScrollPos()*rate;  // 현재 위치를 Point 에 저장
 		DrawImage(c_matImage);   // 윈도우 다시 그리기
 
 	}
 
 	CDialogEx::OnHScroll(nSBCode, nPos, pScrollBar);
-
+	}
 }
 
 

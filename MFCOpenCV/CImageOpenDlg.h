@@ -37,7 +37,7 @@ public:
 	long double count=1;
 
 	CRect rect;
-
+	
 	int sourcex, sourcey;
 protected:
 	HICON m_hIcon;
