@@ -35,7 +35,8 @@ public:
 	POINT c;
 	POINT origin;
 	long double count=1;
-
+	int Hpos;
+	int Vpos;
 	CRect rect;
 	
 	int sourcex, sourcey;

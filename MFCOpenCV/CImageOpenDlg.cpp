@@ -144,8 +144,8 @@ void CImageOpenDlg::DrawImage(Mat img)
 	//int Hpos = m_HScroll.GetScrollPos();
 	//int Vpos = m_VScroll.GetScrollPos();
 
-	int Hpos = m_HScroll.GetScrollPos();
-	int Vpos = m_VScroll.GetScrollPos();
+	 Hpos = m_HScroll.GetScrollPos();
+	 Vpos = m_VScroll.GetScrollPos();
 	//GetDlgItem(IDC_PICTURE)->ScreenToClient(&rect);
 	GetDlgItem(IDC_PICTURE)->GetClientRect(&rect);
 	//GetDlgItem(IDC_PICTURE_MINI)->GetClientRect(&rect);
@@ -156,8 +156,9 @@ void CImageOpenDlg::DrawImage(Mat img)
 	m_TextSize2.SetWindowTextW(strPoint2);
 
 		SetStretchBltMode(dc.GetSafeHdc(), COLORONCOLOR);
-		StretchDIBits(dc.GetSafeHdc(), 0, 0, rect.Width(), rect.Height(), Hpos*count, Vpos,
-			c_matImage.cols / count + Hpos/count, c_matImage.rows/count + Vpos, img.data, m_pBitmapInfo, DIB_RGB_COLORS, SRCCOPY);
+		StretchDIBits(dc.GetSafeHdc(), 0, 0, rect.Width(), rect.Height(), Hpos*count / trans_count_w, Vpos * count / trans_count_h,
+			c_matImage.cols / count + Hpos/count*trans_count_w, c_matImage.rows /count + Vpos / count * trans_count_h,
+			img.data, m_pBitmapInfo, DIB_RGB_COLORS, SRCCOPY);
 	
 	
 	//SetDIBitsToDevice(dc.GetSafeHdc(), 0, 0, rect.Width(), rect.Height(), 0, 0, 0,
@@ -480,7 +481,7 @@ void CImageOpenDlg::OnBnClickedButtonImageReduction()
 void CImageOpenDlg::OnBnClickedButtonImageOriginal()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-	
+
 	count = 1;
 	resize(m_matImage, c_matImage, Size(m_matImage.cols / count, m_matImage.rows / count), 0, 0, INTER_CUBIC);
 	CreateBitmapInfo(c_matImage.cols, c_matImage.rows, c_matImage.channels() * 8);
