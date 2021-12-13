@@ -156,8 +156,8 @@ void CImageOpenDlg::DrawImage(Mat img)
 	m_TextSize2.SetWindowTextW(strPoint2);
 
 		SetStretchBltMode(dc.GetSafeHdc(), COLORONCOLOR);
-		StretchDIBits(dc.GetSafeHdc(), 0, 0, rect.Width(), rect.Height(), Hpos, Vpos,
-			(c_matImage.cols + Hpos) / count, (c_matImage.rows-Vpos)/count, img.data, m_pBitmapInfo, DIB_RGB_COLORS, SRCCOPY);
+		StretchDIBits(dc.GetSafeHdc(), 0, 0, rect.Width(), rect.Height(), Hpos*count, Vpos,
+			c_matImage.cols / count + Hpos/count, c_matImage.rows/count + Vpos, img.data, m_pBitmapInfo, DIB_RGB_COLORS, SRCCOPY);
 	
 	
 	//SetDIBitsToDevice(dc.GetSafeHdc(), 0, 0, rect.Width(), rect.Height(), 0, 0, 0,
@@ -172,8 +172,11 @@ void CImageOpenDlg::DrawImage(Mat img)
 	CPen pen;
 	pen.CreatePen(PS_DEFAULT, 0, RGB(255, 0 ,0));    // 펜을 생성
 	CPen* oldPen = dc2.SelectObject(&pen);
-	dc2.Rectangle(0, 99, 99/count, 99/count);
-
+	if (count > 1)
+	{
+		dc2.Rectangle((0+Hpos)/13, 99, 99 / count+Hpos/13, 99 / count);
+	}
+	
 	//StretchDIBits(dc.GetSafeHdc(), 0, 0, rect.Width(), rect.Height(), 0, 0,
 		//img.cols/count, img.rows/count, img.data, m_pBitmapInfo, DIB_RGB_COLORS, SRCCOPY);
 
@@ -428,10 +431,10 @@ void CImageOpenDlg::OnBnClickedButtonImageEnlargement()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 
-	
-
-	count = count * 2;
-	
+	if (count < 8)
+		count = count * 2;
+	else
+		count = 8;
 	//CPoint point;
 	Mat dst;
 	//resize(m_matImage, dst1, Size(), 4, 4, INTER_NEAREST);
