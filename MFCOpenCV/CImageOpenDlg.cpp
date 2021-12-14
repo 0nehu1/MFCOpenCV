@@ -183,8 +183,9 @@ void CImageOpenDlg::DrawImage(Mat img)
 	{
 		//dc2.SetBkMode(TRANSPARENT);
 		dc2.Rectangle((0+Hpos)/ count * trans_count_w, (0+Vpos)/ count * trans_count_w, 99 / count+Hpos / count * trans_count_w, 99 / count + Vpos / count * trans_count_w);
-	
-			
+		dc2.SelectObject(&pOldBrush);
+		brush.DeleteObject();
+		pen.DeleteObject();
 	}
 	
 	//StretchDIBits(dc.GetSafeHdc(), 0, 0, rect.Width(), rect.Height(), 0, 0,
@@ -448,7 +449,7 @@ void CImageOpenDlg::OnBnClickedButtonImageEnlargement()
 	//CPoint point;
 	Mat dst;
 	//resize(m_matImage, dst1, Size(), 4, 4, INTER_NEAREST);
-	resize(c_matImage, dst, Size(c_matImage.cols*count,c_matImage.rows*count), 0, 0, INTER_CUBIC);
+	resize(m_matImage, dst, Size(m_matImage.cols*count,m_matImage.rows*count), 0, 0, INTER_CUBIC);
 	
 	
 	//imshow("dst1", dst2(Rect(point.x,point.y, m_matImage.cols/4,m_matImage.rows/4)));
@@ -457,7 +458,7 @@ void CImageOpenDlg::OnBnClickedButtonImageEnlargement()
 	CreateBitmapInfo(dst.cols, dst.rows,dst.channels() * 8);
 
 	c_matImage = dst;
-	DrawImage(c_matImage);
+	DrawImage(dst);
 	//DrawImage();
 }
 
@@ -477,10 +478,10 @@ void CImageOpenDlg::OnBnClickedButtonImageReduction()
 	count = count * 0.5;
 
 	//resize(m_matImage, dst1, Size(), 4, 4, INTER_NEAREST);
-	resize(c_matImage, dst, Size(c_matImage.cols*count , c_matImage.rows*count ), 0,0, INTER_CUBIC);
+	resize(m_matImage, dst, Size(m_matImage.cols*count , m_matImage.rows*count ), 0,0, INTER_CUBIC);
 	CreateBitmapInfo(dst.cols, dst.rows, dst.channels() * 8);
 	c_matImage = dst;
-	DrawImage(c_matImage);
+	DrawImage(dst);
 	//DrawImage();
 	dc.SelectObject(oldPen);
 	pen.DeleteObject();
