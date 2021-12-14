@@ -177,12 +177,12 @@ void CImageOpenDlg::DrawImage(Mat img)
 	CBrush brush;
 	brush.CreateStockObject(NULL_BRUSH);
 	CBrush* pOldBrush = dc2.SelectObject(&brush);
-	pen.CreatePen(PS_DEFAULT, 0, RGB(255, 0 ,0));    // 펜을 생성
+	pen.CreatePen(PS_DEFAULT, 3, RGB(255, 0 ,0));    // 펜을 생성
 	CPen* oldPen = dc2.SelectObject(&pen);
 	if (count > 1)
 	{
 		//dc2.SetBkMode(TRANSPARENT);
-		dc2.Rectangle((0+Hpos)/ count * trans_count_w, (0+Vpos)/ count * trans_count_h, 99 / count+Hpos / count * trans_count_w, 99 / count + Vpos / count * trans_count_h);
+		dc2.Rectangle((0+Hpos)/ count * trans_count_w, (0+Vpos)/ count * trans_count_w, 99 / count+Hpos / count * trans_count_w, 99 / count + Vpos / count * trans_count_w);
 	
 			
 	}
