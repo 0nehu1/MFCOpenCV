@@ -119,6 +119,7 @@ void CImageOpenDlg::DrawImage(Mat img)
 			, GetDlgItem(IDC_PICTURE) // 부모 윈도우 
 			, 1 // 스크롤 막대의 컨트롤 ID입니다 
 		);
+	
 		m_VScroll.ShowScrollBar(TRUE); 
 		VscrInfo.cbSize = sizeof(VscrInfo);
 		VscrInfo.fMask = SIF_ALL;
@@ -129,6 +130,7 @@ void CImageOpenDlg::DrawImage(Mat img)
 		VscrInfo.nPos = 0; // 트랙바 위치 
 		m_VScroll.SetScrollRange(VscrInfo.nMin, VscrInfo.nMax); // 범위 설정
 		m_VScroll.SetScrollPos(VscrInfo.nPos); // 위치 설정
+		
 		m_VScroll.SetScrollInfo(&VscrInfo); // 스크롤바 정보 설정 
 	}
 	else {
@@ -146,6 +148,7 @@ void CImageOpenDlg::DrawImage(Mat img)
 
 	 Hpos = m_HScroll.GetScrollPos();
 	 Vpos = m_VScroll.GetScrollPos();
+
 	//GetDlgItem(IDC_PICTURE)->ScreenToClient(&rect);
 	GetDlgItem(IDC_PICTURE)->GetClientRect(&rect);
 	//GetDlgItem(IDC_PICTURE_MINI)->GetClientRect(&rect);
@@ -156,8 +159,8 @@ void CImageOpenDlg::DrawImage(Mat img)
 	m_TextSize2.SetWindowTextW(strPoint2);
 
 		SetStretchBltMode(dc.GetSafeHdc(), COLORONCOLOR);
-		StretchDIBits(dc.GetSafeHdc(), 0, 0, rect.Width(), rect.Height(), Hpos*count / trans_count_w, Vpos * count / trans_count_h,
-			c_matImage.cols / count + Hpos/count*trans_count_w, c_matImage.rows /count + Vpos / count * trans_count_h,
+		StretchDIBits(dc.GetSafeHdc(), 0, 0, rect.Width(), rect.Height(), Hpos / trans_count_w, Vpos / trans_count_h,
+			c_matImage.cols / count + Hpos*trans_count_w, c_matImage.rows /count + Vpos  * trans_count_h,
 			img.data, m_pBitmapInfo, DIB_RGB_COLORS, SRCCOPY);
 	
 		CString strPoint;
@@ -182,7 +185,7 @@ void CImageOpenDlg::DrawImage(Mat img)
 	if (count > 1)
 	{
 		//dc2.SetBkMode(TRANSPARENT);
-		dc2.Rectangle((0+Hpos)/ count * trans_count_w, (0+Vpos)/ count * trans_count_w, 99 / count+Hpos / count * trans_count_w, 99 / count + Vpos / count * trans_count_w);
+		dc2.Rectangle((0+Hpos)/ count * trans_count_w, (501-Vpos)/ count * trans_count_w, 99 / count+Hpos / count * trans_count_w, 99 / count + (501-Vpos) / count * trans_count_w);
 		dc2.SelectObject(&pOldBrush);
 		brush.DeleteObject();
 		pen.DeleteObject();
@@ -506,7 +509,7 @@ void CImageOpenDlg::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 
 	//m_VScroll.SetScrollRange(0, 572);
 	//m_VScroll.SetScrollPos(572);
-
+	
 	if (count > 1)
 	{
 		if (pScrollBar->GetSafeHwnd() == m_VScroll.GetSafeHwnd()) {
@@ -547,8 +550,10 @@ void CImageOpenDlg::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 	if (pScrollBar->GetSafeHwnd() == m_HScroll.GetSafeHwnd()) {
 		// Scroll Bar ID 확인 (복수개의 Scroll Bar 가 있을수 있기 때문)
 		double pos;
-		double rate = 2592 / 620;
+		//double rate = 2592 / 620;
+		
 		pos = m_HScroll.GetScrollPos();   // 현재 위치 가져옴
+
 
 		if (nSBCode == SB_LINEDOWN) 
 			m_HScroll.SetScrollPos(pos + 10);    // Line 단위 이동 event
@@ -561,7 +566,7 @@ void CImageOpenDlg::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 		else if (nSBCode == SB_THUMBTRACK) m_HScroll.SetScrollPos(nPos);   // 스크롤 헤더를 마우스로 끌때 event
 
 
-		c.x = m_HScroll.GetScrollPos()*rate;  // 현재 위치를 Point 에 저장
+		c.x = m_HScroll.GetScrollPos();  // 현재 위치를 Point 에 저장
 		DrawImage(c_matImage);   // 윈도우 다시 그리기
 
 	}
