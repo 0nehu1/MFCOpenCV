@@ -92,7 +92,7 @@ void CImageOpenDlg::DrawImage(Mat img)
 	SCROLLINFO HscrInfo{};
 	int iSrcX = 0;
 	int iSrcY = 0;
-	if (NULL == m_HScroll.GetSafeHwnd()&& NULL == m_VScroll.GetSafeHwnd()) {
+	if (NULL == m_HScroll.GetSafeHwnd() && NULL == m_VScroll.GetSafeHwnd()) {
 
 		rectHScroll.SetRect(rect.left, rect.top, rect.right, rect.bottom);
 		m_HScroll.Create(WS_CHILD | WS_VISIBLE | SBS_HORZ | SBS_BOTTOMALIGN // 속성 
@@ -104,7 +104,7 @@ void CImageOpenDlg::DrawImage(Mat img)
 		HscrInfo.cbSize = sizeof(HscrInfo);
 		HscrInfo.fMask = SIF_ALL;
 		HscrInfo.nMin = 0; // 스크롤 최소값 
-		HscrInfo.nMax = rect.Width(); // 스크롤 최대값 
+		HscrInfo.nMax = 501; // 스크롤 최대값 
 		HscrInfo.nPage = rect.Width(); // 페이지 번호 
 		HscrInfo.nTrackPos = 0; // 드래깅 상태의 트랙바 위치 
 		HscrInfo.nPos = 0; // 트랙바 위치 
@@ -119,7 +119,7 @@ void CImageOpenDlg::DrawImage(Mat img)
 			, GetDlgItem(IDC_PICTURE) // 부모 윈도우 
 			, 1 // 스크롤 막대의 컨트롤 ID입니다 
 		);
-		m_VScroll.ShowScrollBar(TRUE);
+		m_VScroll.ShowScrollBar(TRUE); 
 		VscrInfo.cbSize = sizeof(VscrInfo);
 		VscrInfo.fMask = SIF_ALL;
 		VscrInfo.nMin = 0; // 스크롤 최소값 
@@ -132,7 +132,7 @@ void CImageOpenDlg::DrawImage(Mat img)
 		m_VScroll.SetScrollInfo(&VscrInfo); // 스크롤바 정보 설정 
 	}
 	else {
-		if (FALSE != m_HScroll.GetScrollInfo(&HscrInfo)&& FALSE != m_VScroll.GetScrollInfo(&VscrInfo))
+		if (FALSE != m_HScroll.GetScrollInfo(&HscrInfo) && FALSE != m_VScroll.GetScrollInfo(&VscrInfo))
 		{
 			iSrcX = HscrInfo.nPos; // 현재 스크롤 위치 받아옴 
 			iSrcY = VscrInfo.nPos;
@@ -160,7 +160,10 @@ void CImageOpenDlg::DrawImage(Mat img)
 			c_matImage.cols / count + Hpos/count*trans_count_w, c_matImage.rows /count + Vpos / count * trans_count_h,
 			img.data, m_pBitmapInfo, DIB_RGB_COLORS, SRCCOPY);
 	
-	
+		CString strPoint;
+		strPoint.Format(L"%04f, %04f", Hpos * count / trans_count_w, Vpos * count / trans_count_h);
+		m_TextSize.SetWindowTextW(strPoint);
+
 	//SetDIBitsToDevice(dc.GetSafeHdc(), 0, 0, rect.Width(), rect.Height(), 0, 0, 0,
 	//	c_matImage.rows / count, c_matImage.data, m_pBitmapInfo, DIB_RGB_COLORS);
 		 
@@ -171,11 +174,17 @@ void CImageOpenDlg::DrawImage(Mat img)
 	//CClientDC dc(this);
 
 	CPen pen;
+	CBrush brush;
+	brush.CreateStockObject(NULL_BRUSH);
+	CBrush* pOldBrush = dc2.SelectObject(&brush);
 	pen.CreatePen(PS_DEFAULT, 0, RGB(255, 0 ,0));    // 펜을 생성
 	CPen* oldPen = dc2.SelectObject(&pen);
 	if (count > 1)
 	{
-		dc2.Rectangle((0+Hpos)/13, 99, 99 / count+Hpos/13, 99 / count);
+		//dc2.SetBkMode(TRANSPARENT);
+		dc2.Rectangle((0+Hpos)/ count * trans_count_w, (0+Vpos)/ count * trans_count_h, 99 / count+Hpos / count * trans_count_w, 99 / count + Vpos / count * trans_count_h);
+	
+			
 	}
 	
 	//StretchDIBits(dc.GetSafeHdc(), 0, 0, rect.Width(), rect.Height(), 0, 0,
