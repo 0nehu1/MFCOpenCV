@@ -39,6 +39,10 @@ public:
 	int Vpos;
 	CRect rect;
 	
+	VideoCapture* capture;
+	Mat mat_frame;
+	CImage cimage_mfc;
+
 	int sourcex, sourcey;
 protected:
 	HICON m_hIcon;
@@ -72,4 +76,7 @@ public:
 	afx_msg void OnBnClickedButtonHoughline();
 	afx_msg void OnBnClickedButtonBlur();
 	afx_msg void OnBnClickedButtonImagesave();
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
+	CStatic m_picture;
+	afx_msg void OnBnClickedButtonCamera();
 };

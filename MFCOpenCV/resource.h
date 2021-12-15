@@ -15,7 +15,6 @@
 #define IDC_BUTTON_IMAGE_ENLARGEMENT    1005
 #define IDC_BUTTON_IMAGE_REDUCTION      1006
 #define IDC_BUTTON_IMAGE_ORIGINAL       1007
-#define IDC_BUTTON_IMAGE2               1008
 #define IDC_BUTTON_IMAGESAVE            1008
 #define IDC_SCROLLBAR_HORIZON           1009
 #define IDC_SCROLLBAR_VERTICAL          1010
@@ -27,6 +26,8 @@
 #define IDC_BUTTON_HOUGHLINE            1015
 #define IDC_BUTTON_BLUR                 1016
 #define IDC_PICTURE_MINI                1017
+#define IDC_BUTTON_IMAGE2               1018
+#define IDC_BUTTON_CAMERA               1018
 #define ID_OPENCV_32771                 32771
 #define ID_OPENCV_IMAGEIN               32772
 

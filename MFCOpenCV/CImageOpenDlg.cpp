@@ -210,6 +210,7 @@ void CImageOpenDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_TEXT_SIZE3, m_TextSize3);
 	DDX_Control(pDX, IDC_SCROLLBAR_VERTICAL, m_VScroll);
 	DDX_Control(pDX, IDC_SCROLLBAR_HORIZON, m_HScroll);
+	DDX_Control(pDX, IDC_PICTURE, m_picture);
 }
 
 
@@ -232,6 +233,8 @@ BEGIN_MESSAGE_MAP(CImageOpenDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_HOUGHLINE, &CImageOpenDlg::OnBnClickedButtonHoughline)
 	ON_BN_CLICKED(IDC_BUTTON_BLUR, &CImageOpenDlg::OnBnClickedButtonBlur)
 	ON_BN_CLICKED(IDC_BUTTON_IMAGESAVE, &CImageOpenDlg::OnBnClickedButtonImagesave)
+	ON_WM_TIMER()
+	ON_BN_CLICKED(IDC_BUTTON_CAMERA, &CImageOpenDlg::OnBnClickedButtonCamera)
 END_MESSAGE_MAP()
 
 
@@ -357,17 +360,7 @@ void CImageOpenDlg::OnPaint()
 }
 
 
-void CImageOpenDlg::OnDestroy()
-{
-	CDialogEx::OnDestroy();
 
-
-	if (m_pBitmapInfo != NULL)
-	{
-		delete m_pBitmapInfo;
-		m_pBitmapInfo = NULL;
-	}
-}
 
 
 BOOL CImageOpenDlg::OnInitDialog()
@@ -393,6 +386,21 @@ BOOL CImageOpenDlg::OnInitDialog()
 	origin.x = HScroll.left;
 	origin.y = VScroll.top;
 
+
+	capture = new VideoCapture(0);
+
+	if (!capture->isOpened())
+	{
+
+		MessageBox(_T("웹캠을 열수 없습니다. \n"));
+
+	}
+
+	//웹캠 크기를  320x240으로 지정    
+	capture->set(CAP_PROP_FRAME_WIDTH, 320);
+	capture->set(CAP_PROP_FRAME_HEIGHT, 240);
+
+	SetTimer(1000, 30, NULL);
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 				  // 예외: OCX 속성 페이지는 FALSE를 반환해야 합니다.
@@ -698,7 +706,7 @@ void CImageOpenDlg::OnBnClickedButtonHoughline()
 	HoughLines(edge, lines, 1, CV_PI / 180, 250);
 
 	Mat dst;
-	cvtColor(edge, dst, COLOR_GRAY2BGR);
+	cvtColor(edge, dst, COLOR_BGR2GRAY);
 
 	for (size_t i = 0; i < lines.size(); i++)
 	{
@@ -730,3 +738,151 @@ void CImageOpenDlg::OnBnClickedButtonBlur()
 }
 
 
+void CImageOpenDlg::OnDestroy()
+{
+	CDialogEx::OnDestroy();
+
+
+	if (m_pBitmapInfo != NULL)
+	{
+		delete m_pBitmapInfo;
+		m_pBitmapInfo = NULL;
+	}
+}
+
+void CImageOpenDlg::OnTimer(UINT_PTR nIDEvent)
+{
+	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+
+	  //mat_frame가 입력 이미지입니다. 
+	
+
+	CDialogEx::OnTimer(nIDEvent);
+}
+
+
+void CImageOpenDlg::OnBnClickedButtonCamera()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	capture->read(m_matImage);
+
+
+	//이곳에 OpenCV 함수들을 적용합니다.
+	//여기에서는 그레이스케일 이미지로 변환합니다.
+	cvtColor(m_matImage, m_matImage, COLOR_GRAY2BGR);
+
+
+
+	//화면에 보여주기 위한 처리입니다.
+	int bpp = 8 * m_matImage.elemSize();
+	assert((bpp == 8 || bpp == 24 || bpp == 32));
+
+	int padding = 0;
+	//32 bit image is always DWORD aligned because each pixel requires 4 bytes
+	if (bpp < 32)
+		padding = 4 - (m_matImage.cols % 4);
+
+	if (padding == 4)
+		padding = 0;
+
+	int border = 0;
+	//32 bit image is always DWORD aligned because each pixel requires 4 bytes
+	if (bpp < 32)
+	{
+		border = 4 - (m_matImage.cols % 4);
+	}
+
+
+
+	//Mat mat_temp;
+	if (border > 0 || m_matImage.isContinuous() == false)
+	{
+		// Adding needed columns on the right (max 3 px)
+		cv::copyMakeBorder(m_matImage, c_matImage, 0, 0, 0, border, cv::BORDER_CONSTANT, 0);
+	}
+	else
+	{
+		c_matImage = m_matImage;
+	}
+
+
+	m_picture.GetClientRect(&rect);
+	cv::Size winSize(rect.right, rect.bottom);
+
+	cimage_mfc.Create(winSize.width, winSize.height, 24);
+
+
+	BITMAPINFO* bitInfo = (BITMAPINFO*)malloc(sizeof(BITMAPINFO) + 256 * sizeof(RGBQUAD));
+	bitInfo->bmiHeader.biBitCount = bpp;
+	bitInfo->bmiHeader.biWidth = c_matImage.cols;
+	bitInfo->bmiHeader.biHeight = -c_matImage.rows;
+	bitInfo->bmiHeader.biPlanes = 1;
+	bitInfo->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+	bitInfo->bmiHeader.biCompression = BI_RGB;
+	bitInfo->bmiHeader.biClrImportant = 0;
+	bitInfo->bmiHeader.biClrUsed = 0;
+	bitInfo->bmiHeader.biSizeImage = 0;
+	bitInfo->bmiHeader.biXPelsPerMeter = 0;
+	bitInfo->bmiHeader.biYPelsPerMeter = 0;
+
+
+	//그레이스케일 인경우 팔레트가 필요
+	if (bpp == 8)
+	{
+		RGBQUAD* palette = bitInfo->bmiColors;
+		for (int i = 0; i < 256; i++)
+		{
+			palette[i].rgbBlue = palette[i].rgbGreen = palette[i].rgbRed = (BYTE)i;
+			palette[i].rgbReserved = 0;
+		}
+	}
+
+
+	// Image is bigger or smaller than into destination rectangle
+	// we use stretch in full rect
+
+	if (c_matImage.cols == winSize.width && c_matImage.rows == winSize.height)
+	{
+		// source and destination have same size
+		// transfer memory block
+		// NOTE: the padding border will be shown here. Anyway it will be max 3px width
+
+		SetDIBitsToDevice(cimage_mfc.GetDC(),
+			//destination rectangle
+			0, 0, winSize.width, winSize.height,
+			0, 0, 0, c_matImage.rows,
+			c_matImage.data, bitInfo, DIB_RGB_COLORS);
+	}
+	else
+	{
+		// destination rectangle
+		int destx = 0, desty = 0;
+		int destw = winSize.width;
+		int desth = winSize.height;
+
+		// rectangle defined on source bitmap
+		// using imgWidth instead of mat_temp.cols will ignore the padding border
+		int imgx = 0, imgy = 0;
+		int imgWidth = c_matImage.cols - border;
+		int imgHeight = c_matImage.rows;
+
+		StretchDIBits(cimage_mfc.GetDC(),
+			destx, desty, destw, desth,
+			imgx, imgy, imgWidth, imgHeight,
+			c_matImage.data, bitInfo, DIB_RGB_COLORS, SRCCOPY);
+	}
+
+
+	HDC dc = ::GetDC(m_picture.m_hWnd);
+	cimage_mfc.BitBlt(dc, 0, 0);
+
+
+	::ReleaseDC(m_picture.m_hWnd, dc);
+
+	cimage_mfc.ReleaseDC();
+	cimage_mfc.Destroy();
+	
+	
+	//OnTimer(nIDEvent);
+}
