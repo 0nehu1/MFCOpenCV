@@ -211,6 +211,7 @@ void CImageOpenDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_SCROLLBAR_VERTICAL, m_VScroll);
 	DDX_Control(pDX, IDC_SCROLLBAR_HORIZON, m_HScroll);
 	DDX_Control(pDX, IDC_PICTURE, m_picture);
+	DDX_Control(pDX, IDC_LIST1, m_List);
 }
 
 

@@ -22,10 +22,10 @@
 #define IDC_BUTTON_CANNYEDGE            1012
 #define IDC_BUTTON_CANNYEDGE2           1013
 #define IDC_BUTTON_CIRCLEDETECT         1013
-#define IDC_BUTTON_HOUGHLINE            1015
 #define IDC_BUTTON_BLUR                 1016
 #define IDC_PICTURE_MINI                1017
 #define IDC_BUTTON_CAMERA               1018
+#define IDC_LIST1                       1019
 #define ID_OPENCV_32771                 32771
 #define ID_OPENCV_IMAGEIN               32772
 
@@ -35,7 +35,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        312
 #define _APS_NEXT_COMMAND_VALUE         32773
-#define _APS_NEXT_CONTROL_VALUE         1018
+#define _APS_NEXT_CONTROL_VALUE         1020
 #define _APS_NEXT_SYMED_VALUE           310
 #endif
 #endif
