@@ -229,8 +229,8 @@ BEGIN_MESSAGE_MAP(CImageOpenDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_SOBEL, &CImageOpenDlg::OnBnClickedButtonSobel)
 	ON_BN_CLICKED(IDC_BUTTON_CANNYEDGE, &CImageOpenDlg::OnBnClickedButtonCannyedge)
 	ON_BN_CLICKED(IDC_BUTTON_CIRCLEDETECT, &CImageOpenDlg::OnBnClickedButtonCircledetect)
-	ON_BN_CLICKED(IDC_BUTTON_PWEWITT, &CImageOpenDlg::OnBnClickedButtonPwewitt)
-	ON_BN_CLICKED(IDC_BUTTON_HOUGHLINE, &CImageOpenDlg::OnBnClickedButtonHoughline)
+	//ON_BN_CLICKED(IDC_BUTTON_PWEWITT, &CImageOpenDlg::OnBnClickedButtonPwewitt)
+	//ON_BN_CLICKED(IDC_BUTTON_HOUGHLINE, &CImageOpenDlg::OnBnClickedButtonHoughline)
 	ON_BN_CLICKED(IDC_BUTTON_BLUR, &CImageOpenDlg::OnBnClickedButtonBlur)
 	ON_BN_CLICKED(IDC_BUTTON_IMAGESAVE, &CImageOpenDlg::OnBnClickedButtonImagesave)
 	ON_WM_TIMER()
@@ -764,24 +764,23 @@ void CImageOpenDlg::OnTimer(UINT_PTR nIDEvent)
 
 void CImageOpenDlg::OnBnClickedButtonCamera()
 {
-	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-	capture->read(m_matImage);
+	capture->read(mat_frame);
 
 
 	//이곳에 OpenCV 함수들을 적용합니다.
 	//여기에서는 그레이스케일 이미지로 변환합니다.
-	cvtColor(m_matImage, m_matImage, COLOR_GRAY2BGR);
+	cvtColor(mat_frame, mat_frame, COLOR_BGR2GRAY);
 
 
 
 	//화면에 보여주기 위한 처리입니다.
-	int bpp = 8 * m_matImage.elemSize();
+	int bpp = 8 * mat_frame.elemSize();
 	assert((bpp == 8 || bpp == 24 || bpp == 32));
 
 	int padding = 0;
 	//32 bit image is always DWORD aligned because each pixel requires 4 bytes
 	if (bpp < 32)
-		padding = 4 - (m_matImage.cols % 4);
+		padding = 4 - (mat_frame.cols % 4);
 
 	if (padding == 4)
 		padding = 0;
@@ -790,33 +789,34 @@ void CImageOpenDlg::OnBnClickedButtonCamera()
 	//32 bit image is always DWORD aligned because each pixel requires 4 bytes
 	if (bpp < 32)
 	{
-		border = 4 - (m_matImage.cols % 4);
+		border = 4 - (mat_frame.cols % 4);
 	}
 
 
 
-	//Mat mat_temp;
-	if (border > 0 || m_matImage.isContinuous() == false)
+	Mat mat_temp;
+	if (border > 0 || mat_frame.isContinuous() == false)
 	{
 		// Adding needed columns on the right (max 3 px)
-		cv::copyMakeBorder(m_matImage, c_matImage, 0, 0, 0, border, cv::BORDER_CONSTANT, 0);
+		cv::copyMakeBorder(mat_frame, mat_temp, 0, 0, 0, border, cv::BORDER_CONSTANT, 0);
 	}
 	else
 	{
-		c_matImage = m_matImage;
+		mat_temp = mat_frame;
 	}
 
 
-	m_picture.GetClientRect(&rect);
-	cv::Size winSize(rect.right, rect.bottom);
+	RECT r;
+	m_picture.GetClientRect(&r);
+	cv::Size winSize(r.right, r.bottom);
 
 	cimage_mfc.Create(winSize.width, winSize.height, 24);
 
 
 	BITMAPINFO* bitInfo = (BITMAPINFO*)malloc(sizeof(BITMAPINFO) + 256 * sizeof(RGBQUAD));
 	bitInfo->bmiHeader.biBitCount = bpp;
-	bitInfo->bmiHeader.biWidth = c_matImage.cols;
-	bitInfo->bmiHeader.biHeight = -c_matImage.rows;
+	bitInfo->bmiHeader.biWidth = mat_temp.cols;
+	bitInfo->bmiHeader.biHeight = -mat_temp.rows;
 	bitInfo->bmiHeader.biPlanes = 1;
 	bitInfo->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
 	bitInfo->bmiHeader.biCompression = BI_RGB;
@@ -842,7 +842,7 @@ void CImageOpenDlg::OnBnClickedButtonCamera()
 	// Image is bigger or smaller than into destination rectangle
 	// we use stretch in full rect
 
-	if (c_matImage.cols == winSize.width && c_matImage.rows == winSize.height)
+	if (mat_temp.cols == winSize.width && mat_temp.rows == winSize.height)
 	{
 		// source and destination have same size
 		// transfer memory block
@@ -851,8 +851,8 @@ void CImageOpenDlg::OnBnClickedButtonCamera()
 		SetDIBitsToDevice(cimage_mfc.GetDC(),
 			//destination rectangle
 			0, 0, winSize.width, winSize.height,
-			0, 0, 0, c_matImage.rows,
-			c_matImage.data, bitInfo, DIB_RGB_COLORS);
+			0, 0, 0, mat_temp.rows,
+			mat_temp.data, bitInfo, DIB_RGB_COLORS);
 	}
 	else
 	{
@@ -864,15 +864,17 @@ void CImageOpenDlg::OnBnClickedButtonCamera()
 		// rectangle defined on source bitmap
 		// using imgWidth instead of mat_temp.cols will ignore the padding border
 		int imgx = 0, imgy = 0;
-		int imgWidth = c_matImage.cols - border;
-		int imgHeight = c_matImage.rows;
+		int imgWidth = mat_temp.cols - border;
+		int imgHeight = mat_temp.rows;
 
 		StretchDIBits(cimage_mfc.GetDC(),
 			destx, desty, destw, desth,
 			imgx, imgy, imgWidth, imgHeight,
-			c_matImage.data, bitInfo, DIB_RGB_COLORS, SRCCOPY);
+			mat_temp.data, bitInfo, DIB_RGB_COLORS, SRCCOPY);
 	}
 
+	m_matImage = mat_temp;
+	c_matImage = mat_temp;
 
 	HDC dc = ::GetDC(m_picture.m_hWnd);
 	cimage_mfc.BitBlt(dc, 0, 0);
@@ -882,6 +884,7 @@ void CImageOpenDlg::OnBnClickedButtonCamera()
 
 	cimage_mfc.ReleaseDC();
 	cimage_mfc.Destroy();
+
 	
 	
 	//OnTimer(nIDEvent);

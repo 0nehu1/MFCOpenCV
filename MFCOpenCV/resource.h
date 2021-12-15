@@ -22,11 +22,9 @@
 #define IDC_BUTTON_CANNYEDGE            1012
 #define IDC_BUTTON_CANNYEDGE2           1013
 #define IDC_BUTTON_CIRCLEDETECT         1013
-#define IDC_BUTTON_PWEWITT              1014
 #define IDC_BUTTON_HOUGHLINE            1015
 #define IDC_BUTTON_BLUR                 1016
 #define IDC_PICTURE_MINI                1017
-#define IDC_BUTTON_IMAGE2               1018
 #define IDC_BUTTON_CAMERA               1018
 #define ID_OPENCV_32771                 32771
 #define ID_OPENCV_IMAGEIN               32772
