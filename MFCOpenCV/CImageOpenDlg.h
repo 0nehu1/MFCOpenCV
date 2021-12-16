@@ -85,4 +85,5 @@ public:
 	afx_msg void OnBnClickedButtonCamera2();
 	afx_msg void OnBnClickedButtonEmbossing();
 	afx_msg void OnBnClickedButtonUnsharp();
+	afx_msg void OnBnClickedButtonBinary();
 };
