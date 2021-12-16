@@ -236,6 +236,7 @@ BEGIN_MESSAGE_MAP(CImageOpenDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_IMAGESAVE, &CImageOpenDlg::OnBnClickedButtonImagesave)
 	ON_WM_TIMER()
 	ON_BN_CLICKED(IDC_BUTTON_CAMERA, &CImageOpenDlg::OnBnClickedButtonCamera)
+	ON_BN_CLICKED(IDC_BUTTON_CAMERA2, &CImageOpenDlg::OnBnClickedButtonCamera2)
 END_MESSAGE_MAP()
 
 
@@ -245,6 +246,20 @@ END_MESSAGE_MAP()
 void CImageOpenDlg::OnBnClickedButtonImage()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+
+	CWnd* pWnd1 = (CWnd*)GetDlgItem(IDC_BUTTON_IMAGE_ENLARGEMENT);
+	CWnd* pWnd2 = (CWnd*)GetDlgItem(IDC_BUTTON_IMAGE_REDUCTION);
+	CWnd* pWnd3 = (CWnd*)GetDlgItem(IDC_BUTTON_IMAGE_ORIGINAL);
+	CWnd* pWnd4 = (CWnd*)GetDlgItem(IDC_BUTTON_SOBEL);
+	CWnd* pWnd5 = (CWnd*)GetDlgItem(IDC_BUTTON_CANNYEDGE);
+	CWnd* pWnd6 = (CWnd*)GetDlgItem(IDC_BUTTON_BLUR);
+	pWnd1->EnableWindow(TRUE);
+	pWnd2->EnableWindow(TRUE);
+	pWnd3->EnableWindow(TRUE);
+	pWnd4->EnableWindow(TRUE);
+	pWnd5->EnableWindow(TRUE);
+	pWnd6->EnableWindow(TRUE);
+
 	CFileDialog fileDlg(TRUE, NULL, NULL, OFN_READONLY, _T("image file(*.jpg;)|*.jpg;|All Files(*.*)|*.*||"));
 	if (fileDlg.DoModal() == IDOK)
 	{
@@ -261,6 +276,7 @@ void CImageOpenDlg::OnBnClickedButtonImage()
 
 		DrawImage(m_matImage);
 		Invalidate(false); // TRUE, FALSE는 알아서.
+
 	}
 	// 영상 출력 Picture Control 크기
 	CStatic* staticSize = (CStatic*)GetDlgItem(IDC_PICTURE);
@@ -286,6 +302,10 @@ void CImageOpenDlg::OnBnClickedButtonImage()
 
 	trans_count_w = static_cast<float>(501) / m_matImage.cols;	// 이미지 가로 비율 
 	trans_count_h = static_cast<float>(501) / m_matImage.rows;  // 이미지 세로 비율
+
+	
+
+	
 
 }
 void CImageOpenDlg::OnBnClickedButtonImagesave()
@@ -398,11 +418,23 @@ BOOL CImageOpenDlg::OnInitDialog()
 	}
 
 	//웹캠 크기를  320x240으로 지정    
-	capture->set(CAP_PROP_FRAME_WIDTH, 320);
-	capture->set(CAP_PROP_FRAME_HEIGHT, 240);
+	capture->set(CAP_PROP_FRAME_WIDTH, 501);
+	capture->set(CAP_PROP_FRAME_HEIGHT, 501);
 
 	SetTimer(1000, 30, NULL);
 
+	CWnd* pWnd1 = (CWnd*)GetDlgItem(IDC_BUTTON_IMAGE_ENLARGEMENT);
+	CWnd* pWnd2 = (CWnd*)GetDlgItem(IDC_BUTTON_IMAGE_REDUCTION);
+	CWnd* pWnd3 = (CWnd*)GetDlgItem(IDC_BUTTON_IMAGE_ORIGINAL);
+	CWnd* pWnd4 = (CWnd*)GetDlgItem(IDC_BUTTON_SOBEL);
+	CWnd* pWnd5 = (CWnd*)GetDlgItem(IDC_BUTTON_CANNYEDGE);
+	CWnd* pWnd6 = (CWnd*)GetDlgItem(IDC_BUTTON_BLUR);
+	pWnd1->EnableWindow(FALSE);
+	pWnd2->EnableWindow(FALSE);
+	pWnd3->EnableWindow(FALSE);
+	pWnd4->EnableWindow(FALSE);
+	pWnd5->EnableWindow(FALSE);
+	pWnd6->EnableWindow(FALSE);
 	return TRUE;  // return TRUE unless you set the focus to a control
 				  // 예외: OCX 속성 페이지는 FALSE를 반환해야 합니다.
 }
@@ -453,7 +485,10 @@ void CImageOpenDlg::OnMouseMove(UINT nFlags, CPoint point)
 void CImageOpenDlg::OnBnClickedButtonImageEnlargement()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-
+	//GetDlgItem(IDC_BUTTON_IMAGE_ENLARGEMENT)->ShowWindow(SW_HIDE);
+	//GetDlgItem(IDC_BUTTON_IMAGE)->EnableWindow(TRUE);
+	//GetDlgItem(IDC_BUTTON_CAMERA)->EnableWindow(TRUE);
+	
 	if (count < 8)
 		count = count * 2;
 	else
@@ -507,6 +542,14 @@ void CImageOpenDlg::OnBnClickedButtonImageOriginal()
 	count = 1;
 	resize(m_matImage, c_matImage, Size(m_matImage.cols / count, m_matImage.rows / count), 0, 0, INTER_CUBIC);
 	CreateBitmapInfo(c_matImage.cols, c_matImage.rows, c_matImage.channels() * 8);
+	
+	//listcount--;
+	//m_List.InsertString(listcount,_T(""));
+	//m_List.DeleteString(listcount);
+
+	//UpdateData();
+		//
+
 	DrawImage(c_matImage);
 	//DrawImage();
 }
@@ -607,7 +650,10 @@ void CImageOpenDlg::OnBnClickedButtonSobel()
 
 	c_matImage = mag ;
 
+	UpdateData();
+	m_List.InsertString(listcount, _T("Sobel"));
 
+	listcount++;
 	DrawImage(c_matImage);
 }
 
@@ -619,8 +665,11 @@ void CImageOpenDlg::OnBnClickedButtonCannyedge()
 	Canny(c_matImage, dst1, 50, 100);
 
 	c_matImage = dst1;
-
+	UpdateData();
+	m_List.InsertString(listcount, _T("canny"));
+	listcount++;
 	DrawImage(c_matImage);
+
 }
 
 
@@ -731,8 +780,10 @@ void CImageOpenDlg::OnBnClickedButtonBlur()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 	Mat blur;
-	GaussianBlur(c_matImage, blur, Size(3, 3), 0);
-
+	// 가우시안 필터
+	// GaussianBlur(c_matImage, blur, Size(3, 3), 0);
+	// 평균값 필터
+	cv::blur(c_matImage, blur, Size(3, 3));
 	c_matImage = blur;
 
 	DrawImage(c_matImage);
@@ -749,17 +800,137 @@ void CImageOpenDlg::OnDestroy()
 		delete m_pBitmapInfo;
 		m_pBitmapInfo = NULL;
 	}
+
+	//capCaptureStop();
+	//capDriverDisconnect(hWindow);
 }
 
 void CImageOpenDlg::OnTimer(UINT_PTR nIDEvent)
 {
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
 	// TODO: 여기에 메시지 처리기 코드를 추가 및/또는 기본값을 호출합니다.
+	capture->read(mat_frame);
 
-	  //mat_frame가 입력 이미지입니다. 
-	
 
-	CDialogEx::OnTimer(nIDEvent);
+	//이곳에 OpenCV 함수들을 적용합니다.
+	//여기에서는 그레이스케일 이미지로 변환합니다.
+	//cvtColor(mat_frame, mat_frame, COLOR_BGR2GRAY);
+
+
+
+	//화면에 보여주기 위한 처리입니다.
+	int bpp = 8 * mat_frame.elemSize();
+	assert((bpp == 8 || bpp == 24 || bpp == 32));
+
+	int padding = 0;
+	//32 bit image is always DWORD aligned because each pixel requires 4 bytes
+	if (bpp < 32)
+		padding = 4 - (mat_frame.cols % 4);
+
+	if (padding == 4)
+		padding = 0;
+
+	int border = 0;
+	//32 bit image is always DWORD aligned because each pixel requires 4 bytes
+	if (bpp < 32)
+	{
+		border = 4 - (mat_frame.cols % 4);
+	}
+
+
+
+	Mat mat_temp;
+	if (border > 0 || mat_frame.isContinuous() == false)
+	{
+		// Adding needed columns on the right (max 3 px)
+		cv::copyMakeBorder(mat_frame, mat_temp, 0, 0, 0, border, cv::BORDER_CONSTANT, 0);
+	}
+	else
+	{
+		mat_temp = mat_frame;
+	}
+
+
+	//RECT r;
+
+	m_picture.GetClientRect(&rect);
+	cv::Size winSize(rect.right, rect.bottom);
+
+	cimage_mfc.Create(winSize.width, winSize.height, 24);
+
+
+	BITMAPINFO* bitInfo = (BITMAPINFO*)malloc(sizeof(BITMAPINFO) + 256 * sizeof(RGBQUAD));
+	bitInfo->bmiHeader.biBitCount = bpp;
+	bitInfo->bmiHeader.biWidth = mat_temp.cols;
+	bitInfo->bmiHeader.biHeight = -mat_temp.rows;
+	bitInfo->bmiHeader.biPlanes = 1;
+	bitInfo->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+	bitInfo->bmiHeader.biCompression = BI_RGB;
+	bitInfo->bmiHeader.biClrImportant = 0;
+	bitInfo->bmiHeader.biClrUsed = 0;
+	bitInfo->bmiHeader.biSizeImage = 0;
+	bitInfo->bmiHeader.biXPelsPerMeter = 0;
+	bitInfo->bmiHeader.biYPelsPerMeter = 0;
+
+
+	//그레이스케일 인경우 팔레트가 필요
+	if (bpp == 8)
+	{
+		RGBQUAD* palette = bitInfo->bmiColors;
+		for (int i = 0; i < 256; i++)
+		{
+			palette[i].rgbBlue = palette[i].rgbGreen = palette[i].rgbRed = (BYTE)i;
+			palette[i].rgbReserved = 0;
+		}
+	}
+
+
+	// Image is bigger or smaller than into destination rectangle
+	// we use stretch in full rect
+
+	if (mat_temp.cols == winSize.width && mat_temp.rows == winSize.height)
+	{
+		// source and destination have same size
+		// transfer memory block
+		// NOTE: the padding border will be shown here. Anyway it will be max 3px width
+
+		SetDIBitsToDevice(cimage_mfc.GetDC(),
+			//destination rectangle
+			0, 0, winSize.width, winSize.height,
+			0, 0, 0, mat_temp.rows,
+			mat_temp.data, bitInfo, DIB_RGB_COLORS);
+	}
+	else
+	{
+		// destination rectangle
+		int destx = 0, desty = 0;
+		int destw = winSize.width;
+		int desth = winSize.height;
+
+		// rectangle defined on source bitmap
+		// using imgWidth instead of mat_temp.cols will ignore the padding border
+		int imgx = 0, imgy = 0;
+		int imgWidth = mat_temp.cols - border;
+		int imgHeight = mat_temp.rows;
+
+		StretchDIBits(cimage_mfc.GetDC(),
+			destx, desty, destw, desth,
+			imgx, imgy, imgWidth, imgHeight,
+			mat_temp.data, bitInfo, DIB_RGB_COLORS, SRCCOPY);
+	}
+
+	m_matImage = mat_temp;
+	c_matImage = mat_temp;
+
+	HDC dc = ::GetDC(m_picture.m_hWnd);
+	cimage_mfc.BitBlt(dc, 0, 0);
+
+
+	::ReleaseDC(m_picture.m_hWnd, dc);
+
+	cimage_mfc.ReleaseDC();
+	cimage_mfc.Destroy();
+	count = 1;
 }
 
 
@@ -885,8 +1056,49 @@ void CImageOpenDlg::OnBnClickedButtonCamera()
 
 	cimage_mfc.ReleaseDC();
 	cimage_mfc.Destroy();
+	count = 1;
 
+	resize(m_matImage, c_matImage, Size(m_matImage.cols / count, m_matImage.rows / count), 0, 0, INTER_CUBIC);
+	CreateBitmapInfo(c_matImage.cols, c_matImage.rows, c_matImage.channels() * 8);
+
+	DrawImage(c_matImage);
 	
-	
+	CWnd* pWnd1 = (CWnd*)GetDlgItem(IDC_BUTTON_IMAGE_ENLARGEMENT);
+	CWnd* pWnd2 = (CWnd*)GetDlgItem(IDC_BUTTON_IMAGE_REDUCTION);
+	CWnd* pWnd3 = (CWnd*)GetDlgItem(IDC_BUTTON_IMAGE_ORIGINAL);
+	CWnd* pWnd4 = (CWnd*)GetDlgItem(IDC_BUTTON_SOBEL);
+	CWnd* pWnd5 = (CWnd*)GetDlgItem(IDC_BUTTON_CANNYEDGE);
+	CWnd* pWnd6 = (CWnd*)GetDlgItem(IDC_BUTTON_BLUR);
+	pWnd1->EnableWindow(TRUE);
+	pWnd2->EnableWindow(TRUE);
+	pWnd3->EnableWindow(TRUE);
+	pWnd4->EnableWindow(TRUE);
+	pWnd5->EnableWindow(TRUE);
+	pWnd6->EnableWindow(TRUE);
 	//OnTimer(nIDEvent);
+}
+
+
+void CImageOpenDlg::OnBnClickedButtonCamera2()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	//VideoCapture cap(0);
+
+	////double fps = cap.get(CAP_PROP_FPS);
+	////int delyay = cvRound(1000 / fps);
+
+	//Mat frame, inversed;
+	//while (true)
+	//{
+	//	cap >> frame;
+	//	if (frame.empty())
+	//		break;
+
+	//	inversed = ~frame;
+	//	imshow("frame", frame);
+	//	
+	//	if (waitKey(10) == 27) // ESC Key
+	//		break;
+	//}
+	//destroyAllWindows();
 }

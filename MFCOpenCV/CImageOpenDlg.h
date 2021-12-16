@@ -5,6 +5,7 @@
 #include <opencv2/core/types_c.h>
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgcodecs.hpp>
+#include <atlimage.h>
 #pragma comment (lib, "opencv_world454d")
 using namespace cv;
 // CImageOpenDlg 대화 상자
@@ -80,4 +81,6 @@ public:
 	CStatic m_picture;
 	afx_msg void OnBnClickedButtonCamera();
 	CListBox m_List;
+	int listcount=0;
+	afx_msg void OnBnClickedButtonCamera2();
 };
