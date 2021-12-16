@@ -84,4 +84,5 @@ public:
 	int listcount=0;
 	afx_msg void OnBnClickedButtonCamera2();
 	afx_msg void OnBnClickedButtonEmbossing();
+	afx_msg void OnBnClickedButtonUnsharp();
 };

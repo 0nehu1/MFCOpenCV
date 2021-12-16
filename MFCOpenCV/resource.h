@@ -22,8 +22,9 @@
 #define IDC_BUTTON_CANNYEDGE            1012
 #define IDC_BUTTON_CANNYEDGE2           1013
 #define IDC_BUTTON_CIRCLEDETECT         1013
-#define IDC_BUTTON_SOBEL2               1013
 #define IDC_BUTTON_EMBOSSING            1013
+#define IDC_BUTTON_EMBOSSING2           1014
+#define IDC_BUTTON_UNSHARP              1014
 #define IDC_BUTTON_BLUR                 1016
 #define IDC_PICTURE_MINI                1017
 #define IDC_BUTTON_CAMERA               1018

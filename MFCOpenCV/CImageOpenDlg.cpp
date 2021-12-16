@@ -238,6 +238,7 @@ BEGIN_MESSAGE_MAP(CImageOpenDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_CAMERA, &CImageOpenDlg::OnBnClickedButtonCamera)
 	ON_BN_CLICKED(IDC_BUTTON_CAMERA2, &CImageOpenDlg::OnBnClickedButtonCamera2)
 	ON_BN_CLICKED(IDC_BUTTON_EMBOSSING, &CImageOpenDlg::OnBnClickedButtonEmbossing)
+	ON_BN_CLICKED(IDC_BUTTON_UNSHARP, &CImageOpenDlg::OnBnClickedButtonUnsharp)
 END_MESSAGE_MAP()
 
 
@@ -255,6 +256,7 @@ void CImageOpenDlg::OnBnClickedButtonImage()
 	CWnd* pWnd5 = (CWnd*)GetDlgItem(IDC_BUTTON_CANNYEDGE);
 	CWnd* pWnd6 = (CWnd*)GetDlgItem(IDC_BUTTON_BLUR);
 	CWnd* pWnd7 = (CWnd*)GetDlgItem(IDC_BUTTON_EMBOSSING);
+	CWnd* pWnd8 = (CWnd*)GetDlgItem(IDC_BUTTON_UNSHARP);
 	pWnd1->EnableWindow(TRUE);
 	pWnd2->EnableWindow(TRUE);
 	pWnd3->EnableWindow(TRUE);
@@ -262,6 +264,7 @@ void CImageOpenDlg::OnBnClickedButtonImage()
 	pWnd5->EnableWindow(TRUE);
 	pWnd6->EnableWindow(TRUE);
 	pWnd7->EnableWindow(TRUE);
+	pWnd8->EnableWindow(TRUE);
 
 
 	CFileDialog fileDlg(TRUE, NULL, NULL, OFN_READONLY, _T("image file(*.jpg;)|*.jpg;|All Files(*.*)|*.*||"));
@@ -434,6 +437,7 @@ BOOL CImageOpenDlg::OnInitDialog()
 	CWnd* pWnd5 = (CWnd*)GetDlgItem(IDC_BUTTON_CANNYEDGE);
 	CWnd* pWnd6 = (CWnd*)GetDlgItem(IDC_BUTTON_BLUR);
 	CWnd* pWnd7 = (CWnd*)GetDlgItem(IDC_BUTTON_EMBOSSING);
+	CWnd * pWnd8 = (CWnd*)GetDlgItem(IDC_BUTTON_UNSHARP);
 	pWnd1->EnableWindow(FALSE);
 	pWnd2->EnableWindow(FALSE);
 	pWnd3->EnableWindow(FALSE);
@@ -441,6 +445,7 @@ BOOL CImageOpenDlg::OnInitDialog()
 	pWnd5->EnableWindow(FALSE);
 	pWnd6->EnableWindow(FALSE);
 	pWnd7->EnableWindow(FALSE);
+	pWnd8->EnableWindow(FALSE);
 	return TRUE;  // return TRUE unless you set the focus to a control
 				  // 예외: OCX 속성 페이지는 FALSE를 반환해야 합니다.
 }
@@ -982,6 +987,7 @@ void CImageOpenDlg::OnBnClickedButtonCamera()
 	CWnd* pWnd5 = (CWnd*)GetDlgItem(IDC_BUTTON_CANNYEDGE);
 	CWnd* pWnd6 = (CWnd*)GetDlgItem(IDC_BUTTON_BLUR);
 	CWnd* pWnd7 = (CWnd*)GetDlgItem(IDC_BUTTON_EMBOSSING);
+	CWnd* pWnd8 = (CWnd*)GetDlgItem(IDC_BUTTON_UNSHARP);
 	pWnd1->EnableWindow(TRUE);
 	pWnd2->EnableWindow(TRUE);
 	pWnd3->EnableWindow(TRUE);
@@ -989,6 +995,7 @@ void CImageOpenDlg::OnBnClickedButtonCamera()
 	pWnd5->EnableWindow(TRUE);
 	pWnd6->EnableWindow(TRUE);
 	pWnd7->EnableWindow(TRUE);
+	pWnd8->EnableWindow(TRUE);
 	//OnTimer(nIDEvent);
 }
 
@@ -1035,6 +1042,21 @@ void CImageOpenDlg::OnBnClickedButtonEmbossing()
 	Mat emboss(3, 3, CV_32FC1, data);
 	Mat dst;
 	filter2D(c_matImage, dst, -1, emboss, Point(-1, -1), 128);
+
+	c_matImage = dst;
+
+	DrawImage(c_matImage);
+}
+
+
+void CImageOpenDlg::OnBnClickedButtonUnsharp()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	Mat blurred;
+	GaussianBlur(c_matImage, blurred, Size(), 5);
+
+	float alpha = 1.f;
+	Mat dst = (1 + alpha) * c_matImage - alpha * blurred;
 
 	c_matImage = dst;
 
