@@ -24,13 +24,14 @@
 #define IDC_BUTTON_CIRCLEDETECT         1013
 #define IDC_BUTTON_EMBOSSING            1013
 #define IDC_BUTTON_UNSHARP              1014
-#define IDC_BUTTON_EMBOSSING2           1015
 #define IDC_BUTTON_BINARY               1015
 #define IDC_BUTTON_BLUR                 1016
 #define IDC_PICTURE_MINI                1017
 #define IDC_BUTTON_CAMERA               1018
 #define IDC_LIST1                       1019
 #define IDC_BUTTON_CAMERA2              1020
+#define IDC_BUTTON_BINARY2              1021
+#define IDC_BUTTON_HOUGHLINE            1021
 #define ID_OPENCV_32771                 32771
 #define ID_OPENCV_IMAGEIN               32772
 

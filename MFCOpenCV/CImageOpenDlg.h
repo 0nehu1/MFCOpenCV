@@ -71,10 +71,10 @@ public:
 	CScrollBar m_HScroll;
 	afx_msg void OnBnClickedButtonSobel();
 	afx_msg void OnBnClickedButtonCannyedge();
-	afx_msg void OnBnClickedButtonCircledetect();
-	afx_msg void OnBnClickedButtonPwewitt();
-	void maded_prewitt(const Mat& image, Mat& result, int thresh);
-	afx_msg void OnBnClickedButtonHoughline();
+	//afx_msg void OnBnClickedButtonCircledetect();
+	//afx_msg void OnBnClickedButtonPwewitt();
+	//void maded_prewitt(const Mat& image, Mat& result, int thresh);
+	//afx_msg void OnBnClickedButtonHoughline();
 	afx_msg void OnBnClickedButtonBlur();
 	afx_msg void OnBnClickedButtonImagesave();
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
@@ -86,4 +86,5 @@ public:
 	afx_msg void OnBnClickedButtonEmbossing();
 	afx_msg void OnBnClickedButtonUnsharp();
 	afx_msg void OnBnClickedButtonBinary();
+	afx_msg void OnBnClickedButtonHoughline();
 };

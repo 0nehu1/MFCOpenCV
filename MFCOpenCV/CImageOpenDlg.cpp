@@ -240,6 +240,7 @@ BEGIN_MESSAGE_MAP(CImageOpenDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_EMBOSSING, &CImageOpenDlg::OnBnClickedButtonEmbossing)
 	ON_BN_CLICKED(IDC_BUTTON_UNSHARP, &CImageOpenDlg::OnBnClickedButtonUnsharp)
 	ON_BN_CLICKED(IDC_BUTTON_BINARY, &CImageOpenDlg::OnBnClickedButtonBinary)
+	ON_BN_CLICKED(IDC_BUTTON_HOUGHLINE, &CImageOpenDlg::OnBnClickedButtonHoughline)
 END_MESSAGE_MAP()
 
 
@@ -557,13 +558,20 @@ void CImageOpenDlg::OnBnClickedButtonImageOriginal()
 	count = 1;
 	resize(m_matImage, c_matImage, Size(m_matImage.cols / count, m_matImage.rows / count), 0, 0, INTER_CUBIC);
 	CreateBitmapInfo(c_matImage.cols, c_matImage.rows, c_matImage.channels() * 8);
-	
-	//listcount--;
-	//m_List.InsertString(listcount,_T(""));
-	//m_List.DeleteString(listcount);
-
+	CString str;
+	str.Format(_T(""));
+	LPCTSTR lpszTemp = str;
+	while(1)
+	{
+	//m_List.InsertString(listcount-1,str);
+	m_List.DeleteString(listcount);
+	m_List.InsertString(listcount, str);
+	if (listcount < 1)
+		break;
+	listcount--;
+	}
 	//UpdateData();
-		//
+	//
 
 	DrawImage(c_matImage);
 	//DrawImage();
@@ -1080,4 +1088,33 @@ void CImageOpenDlg::OnBnClickedButtonBinary()
 	c_matImage = dst;
 
 	DrawImage(c_matImage);
+}
+
+
+void CImageOpenDlg::OnBnClickedButtonHoughline()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	Mat edge;
+	Canny(c_matImage, edge, 50, 150);
+
+	vector<Vec2f>lines;
+	HoughLines(edge, lines, 1, CV_PI / 180, 250);
+
+	Mat dst;
+	cvtColor(edge, dst, COLOR_GRAY2BGR);
+
+	for (size_t i = 0; i < lines.size(); i++)
+	{
+		float r = lines[i][0], t = lines[i][1];
+		double cos_t = cos(t), sin_t = sin(t);
+		double x0 = r * cos_t, y0 = r * sin_t;
+		double alpha = 1000;
+
+		Point pt1(cvRound(x0 + alpha * (-sin_t)), cvRound(y0 + alpha * cos_t));
+		Point pt2(cvRound(x0 - alpha * (-sin_t)), cvRound(y0 - alpha * cos_t));
+		line(dst, pt1, pt2, Scalar(0, 0, 255), 2, LINE_AA);
+	}
+	c_matImage = dst;
+	DrawImage(c_matImage);
+
 }
