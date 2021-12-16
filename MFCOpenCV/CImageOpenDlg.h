@@ -83,4 +83,5 @@ public:
 	CListBox m_List;
 	int listcount=0;
 	afx_msg void OnBnClickedButtonCamera2();
+	afx_msg void OnBnClickedButtonEmbossing();
 };

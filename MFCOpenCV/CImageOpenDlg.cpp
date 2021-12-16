@@ -229,7 +229,7 @@ BEGIN_MESSAGE_MAP(CImageOpenDlg, CDialogEx)
 	ON_WM_ERASEBKGND()
 	ON_BN_CLICKED(IDC_BUTTON_SOBEL, &CImageOpenDlg::OnBnClickedButtonSobel)
 	ON_BN_CLICKED(IDC_BUTTON_CANNYEDGE, &CImageOpenDlg::OnBnClickedButtonCannyedge)
-	ON_BN_CLICKED(IDC_BUTTON_CIRCLEDETECT, &CImageOpenDlg::OnBnClickedButtonCircledetect)
+	//ON_BN_CLICKED(IDC_BUTTON_CIRCLEDETECT, &CImageOpenDlg::OnBnClickedButtonCircledetect)
 	//ON_BN_CLICKED(IDC_BUTTON_PWEWITT, &CImageOpenDlg::OnBnClickedButtonPwewitt)
 	//ON_BN_CLICKED(IDC_BUTTON_HOUGHLINE, &CImageOpenDlg::OnBnClickedButtonHoughline)
 	ON_BN_CLICKED(IDC_BUTTON_BLUR, &CImageOpenDlg::OnBnClickedButtonBlur)
@@ -237,6 +237,7 @@ BEGIN_MESSAGE_MAP(CImageOpenDlg, CDialogEx)
 	ON_WM_TIMER()
 	ON_BN_CLICKED(IDC_BUTTON_CAMERA, &CImageOpenDlg::OnBnClickedButtonCamera)
 	ON_BN_CLICKED(IDC_BUTTON_CAMERA2, &CImageOpenDlg::OnBnClickedButtonCamera2)
+	ON_BN_CLICKED(IDC_BUTTON_EMBOSSING, &CImageOpenDlg::OnBnClickedButtonEmbossing)
 END_MESSAGE_MAP()
 
 
@@ -253,12 +254,15 @@ void CImageOpenDlg::OnBnClickedButtonImage()
 	CWnd* pWnd4 = (CWnd*)GetDlgItem(IDC_BUTTON_SOBEL);
 	CWnd* pWnd5 = (CWnd*)GetDlgItem(IDC_BUTTON_CANNYEDGE);
 	CWnd* pWnd6 = (CWnd*)GetDlgItem(IDC_BUTTON_BLUR);
+	CWnd* pWnd7 = (CWnd*)GetDlgItem(IDC_BUTTON_EMBOSSING);
 	pWnd1->EnableWindow(TRUE);
 	pWnd2->EnableWindow(TRUE);
 	pWnd3->EnableWindow(TRUE);
 	pWnd4->EnableWindow(TRUE);
 	pWnd5->EnableWindow(TRUE);
 	pWnd6->EnableWindow(TRUE);
+	pWnd7->EnableWindow(TRUE);
+
 
 	CFileDialog fileDlg(TRUE, NULL, NULL, OFN_READONLY, _T("image file(*.jpg;)|*.jpg;|All Files(*.*)|*.*||"));
 	if (fileDlg.DoModal() == IDOK)
@@ -429,12 +433,14 @@ BOOL CImageOpenDlg::OnInitDialog()
 	CWnd* pWnd4 = (CWnd*)GetDlgItem(IDC_BUTTON_SOBEL);
 	CWnd* pWnd5 = (CWnd*)GetDlgItem(IDC_BUTTON_CANNYEDGE);
 	CWnd* pWnd6 = (CWnd*)GetDlgItem(IDC_BUTTON_BLUR);
+	CWnd* pWnd7 = (CWnd*)GetDlgItem(IDC_BUTTON_EMBOSSING);
 	pWnd1->EnableWindow(FALSE);
 	pWnd2->EnableWindow(FALSE);
 	pWnd3->EnableWindow(FALSE);
 	pWnd4->EnableWindow(FALSE);
 	pWnd5->EnableWindow(FALSE);
 	pWnd6->EnableWindow(FALSE);
+	pWnd7->EnableWindow(FALSE);
 	return TRUE;  // return TRUE unless you set the focus to a control
 				  // 예외: OCX 속성 페이지는 FALSE를 반환해야 합니다.
 }
@@ -673,107 +679,13 @@ void CImageOpenDlg::OnBnClickedButtonCannyedge()
 }
 
 
-void CImageOpenDlg::OnBnClickedButtonCircledetect()
-{
-	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-	Mat blurred;
-	blur(c_matImage, blurred, Size(3, 3));
-
-	std::vector<Vec3f> circles;
-	HoughCircles(blurred, circles, HOUGH_GRADIENT, 1, 50, 150, 30);
-
-	Mat dst;
-	cvtColor(c_matImage, dst, COLOR_GRAY2BGR);
-
-	for (Vec3f c : circles) {
-		Point center(cvRound(c[0]), cvRound(c[1]));
-		int radius = cvRound(c[2]);
-		circle(dst, center, radius, Scalar(0, 0, 255), 2, LINE_AA);
-	}
-	//DrawImage(dst);
-	imshow("dst", dst);
-	waitKey();
-}
 
 
-void CImageOpenDlg::OnBnClickedButtonPwewitt()
-{
-	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-
-	Mat prewitt;
-
-	//maded_prewitt(m_matImage, prewitt, 100);
-	//maded_prewitt(m_matImage, c_matImage, 100);
-
-	
-
-	
-	DrawImage(c_matImage);
-	//imshow("프리윗마스크",prewitt);
-	//waitKey();
-}
-
-void CImageOpenDlg::maded_prewitt(const Mat& image, Mat& result, int thresh)
-{
-	// 수직마스크
-	Mat maskX = (Mat_<double>(3, 3) << -1, 0, 1, -1, 0, 1, -1, 0, 1);
-	// 수평마스크
-	Mat maskY = (Mat_<double>(3, 3) << 1, 1, 1, 0, 0, 0, -1, -1, -1);
-
-	int filterOffset = 3 / 2;
-
-	result = Mat::zeros(image.rows - filterOffset * 2, image.cols - filterOffset * 2, image.type());
-
-	double sumEdgeX;
-	double sumEdgeY;
-	double magnitude;
-
-	for (int yimage = filterOffset; yimage < image.rows - filterOffset; ++yimage) {
-		for (int ximage = filterOffset; ximage < image.cols - filterOffset; ++ximage) {
-
-			sumEdgeX = 0;
-			sumEdgeY = 0;
-			for (int ymask = -filterOffset; ymask <= filterOffset; ++ymask) {
-				for (int xmask = -filterOffset; xmask <= filterOffset; ++xmask) {
-					sumEdgeX += image.at<uchar>(yimage + ymask, ximage + xmask) * maskX.at<double>(filterOffset + ymask, filterOffset + xmask);
-					sumEdgeY += image.at<uchar>(yimage + ymask, ximage + xmask) * maskY.at<double>(filterOffset + ymask, filterOffset + xmask);
-				}
-			}
-			magnitude = sqrt(pow(sumEdgeY, 2) + pow(sumEdgeX, 2));
-			result.at<uchar>(yimage - filterOffset, ximage - filterOffset) = ((magnitude > thresh) ? 255 : 0);
-		}
-	}
-}
 
 
-void CImageOpenDlg::OnBnClickedButtonHoughline()
-{
-	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-	Mat edge;
-	Canny(c_matImage, edge, 50, 150);
 
-	vector<Vec2f> lines;
-	HoughLines(edge, lines, 1, CV_PI / 180, 250);
 
-	Mat dst;
-	cvtColor(edge, dst, COLOR_BGR2GRAY);
 
-	for (size_t i = 0; i < lines.size(); i++)
-	{
-		float r = lines[i][0], t = lines[i][1];
-		double cos_t = cos(t), sin_t = sin(t);
-		double x0 = r * cos_t, y0 = r * sin_t;
-		double alpha = 1000;
-
-		Point pt1(cvRound(x0 + alpha * (-sin_t)), cvRound(y0 + alpha * cos_t));
-		Point pt2(cvRound(x0 - alpha * (-sin_t)), cvRound(y0 - alpha * cos_t));
-		line(dst, pt1, pt2, Scalar(0, 0, 255), 2, LINE_AA);
-	}
-	c_matImage = dst;
-	DrawImage(c_matImage);
-	//imshow("허프직선", dst);
-	//waitKey();
-}
 
 
 void CImageOpenDlg::OnBnClickedButtonBlur()
@@ -1069,12 +981,14 @@ void CImageOpenDlg::OnBnClickedButtonCamera()
 	CWnd* pWnd4 = (CWnd*)GetDlgItem(IDC_BUTTON_SOBEL);
 	CWnd* pWnd5 = (CWnd*)GetDlgItem(IDC_BUTTON_CANNYEDGE);
 	CWnd* pWnd6 = (CWnd*)GetDlgItem(IDC_BUTTON_BLUR);
+	CWnd* pWnd7 = (CWnd*)GetDlgItem(IDC_BUTTON_EMBOSSING);
 	pWnd1->EnableWindow(TRUE);
 	pWnd2->EnableWindow(TRUE);
 	pWnd3->EnableWindow(TRUE);
 	pWnd4->EnableWindow(TRUE);
 	pWnd5->EnableWindow(TRUE);
 	pWnd6->EnableWindow(TRUE);
+	pWnd7->EnableWindow(TRUE);
 	//OnTimer(nIDEvent);
 }
 
@@ -1101,4 +1015,28 @@ void CImageOpenDlg::OnBnClickedButtonCamera2()
 	//		break;
 	//}
 	//destroyAllWindows();
+}
+
+
+void CImageOpenDlg::OnBnClickedButtonEmbossing()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	
+
+	/*Canny(c_matImage, dst1, 50, 100);
+
+	c_matImage = dst1;
+	UpdateData();
+	m_List.InsertString(listcount, _T("canny"));
+	listcount++;
+	*/
+	float data[] = { -1,-1,0,-1,0,1,0,1,1 };
+	
+	Mat emboss(3, 3, CV_32FC1, data);
+	Mat dst;
+	filter2D(c_matImage, dst, -1, emboss, Point(-1, -1), 128);
+
+	c_matImage = dst;
+
+	DrawImage(c_matImage);
 }
