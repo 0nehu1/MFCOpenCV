@@ -286,7 +286,6 @@ void CImageOpenDlg::OnBnClickedButtonImage()
 
 		DrawImage(m_matImage);
 		Invalidate(false); // TRUE, FALSE는 알아서.
-
 	}
 	// 영상 출력 Picture Control 크기
 	CStatic* staticSize = (CStatic*)GetDlgItem(IDC_PICTURE);
@@ -312,8 +311,23 @@ void CImageOpenDlg::OnBnClickedButtonImage()
 
 	trans_count_w = static_cast<float>(501) / m_matImage.cols;	// 이미지 가로 비율 
 	trans_count_h = static_cast<float>(501) / m_matImage.rows;  // 이미지 세로 비율
-
 	
+	// 리스트 박스 지우기
+	CString str;
+	str.Format(_T(""));
+	LPCTSTR lpszTemp = str;
+	while (1)
+	{
+		//m_List.InsertString(listcount-1,str);
+		m_List.DeleteString(listcount);
+		m_List.InsertString(listcount, str);
+		if (listcount < 1)
+			break;
+		listcount--;
+	}
+	//UpdateData();
+	//
+	RedrawWindow(); // 리스트 박스 갱신
 
 	
 
@@ -321,8 +335,6 @@ void CImageOpenDlg::OnBnClickedButtonImage()
 void CImageOpenDlg::OnBnClickedButtonImagesave()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-
-	
 
 	CString szFilter = _T("image file(*.jpg;)|*.jpg;");
 
@@ -575,7 +587,7 @@ void CImageOpenDlg::OnBnClickedButtonImageOriginal()
 	}
 	//UpdateData();
 	//
-
+	RedrawWindow(); // 리스트 박스 갱신
 	DrawImage(c_matImage);
 	//DrawImage();
 }
@@ -1018,6 +1030,24 @@ void CImageOpenDlg::OnBnClickedButtonCamera()
 	pWnd7->EnableWindow(TRUE);
 	pWnd8->EnableWindow(TRUE);
 	pWnd9->EnableWindow(TRUE);
+
+	// 리스트 박스 지우기
+
+	CString str;
+	str.Format(_T(""));
+	LPCTSTR lpszTemp = str;
+	while (1)
+	{
+		//m_List.InsertString(listcount-1,str);
+		m_List.DeleteString(listcount);
+		m_List.InsertString(listcount, str);
+		if (listcount < 1)
+			break;
+		listcount--;
+	}
+	//UpdateData();
+	//
+	RedrawWindow(); // 리스트 박스 갱신
 
 	//OnTimer(nIDEvent);
 }
