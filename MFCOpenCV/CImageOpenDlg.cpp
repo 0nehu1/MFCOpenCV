@@ -451,6 +451,9 @@ BOOL CImageOpenDlg::OnInitDialog()
 	pWnd7->EnableWindow(FALSE);
 	pWnd8->EnableWindow(FALSE);
 	pWnd9->EnableWindow(FALSE);
+
+	UpdateData(TRUE);
+
 	return TRUE;  // return TRUE unless you set the focus to a control
 				  // 예외: OCX 속성 페이지는 FALSE를 반환해야 합니다.
 }
@@ -677,6 +680,7 @@ void CImageOpenDlg::OnBnClickedButtonSobel()
 	m_List.InsertString(listcount, _T("Sobel"));
 
 	listcount++;
+	RedrawWindow(); // 리스트 박스 갱신
 	DrawImage(c_matImage);
 }
 
@@ -691,6 +695,7 @@ void CImageOpenDlg::OnBnClickedButtonCannyedge()
 	UpdateData();
 	m_List.InsertString(listcount, _T("canny"));
 	listcount++;
+	RedrawWindow(); // 리스트 박스 갱신
 	DrawImage(c_matImage);
 
 }
@@ -714,7 +719,10 @@ void CImageOpenDlg::OnBnClickedButtonBlur()
 	// 평균값 필터
 	cv::blur(c_matImage, blur, Size(3, 3));
 	c_matImage = blur;
-
+	UpdateData();
+	m_List.InsertString(listcount, _T("blur"));
+	listcount++;
+	RedrawWindow(); // 리스트 박스 갱신
 	DrawImage(c_matImage);
 }
 
@@ -1059,7 +1067,11 @@ void CImageOpenDlg::OnBnClickedButtonEmbossing()
 	filter2D(c_matImage, dst, -1, emboss, Point(-1, -1), 128);
 
 	c_matImage = dst;
-
+	UpdateData();
+	m_List.InsertString(listcount, _T("Emboss"));
+	listcount++;
+	//UpdateData(TRUE);
+	RedrawWindow(); // 리스트 박스 갱신
 	DrawImage(c_matImage);
 }
 
@@ -1074,7 +1086,12 @@ void CImageOpenDlg::OnBnClickedButtonUnsharp()
 	Mat dst = (1 + alpha) * c_matImage - alpha * blurred;
 
 	c_matImage = dst;
-
+	UpdateData(TRUE);
+	m_List.InsertString(listcount, _T("unsharp"));
+	//m_List.AddString(_T("unsharp"));
+	listcount++;
+	//UpdateData(FALSE);
+	RedrawWindow(); // 리스트 박스 갱신
 	DrawImage(c_matImage);
 }
 
@@ -1086,7 +1103,10 @@ void CImageOpenDlg::OnBnClickedButtonBinary()
 	threshold(c_matImage, dst, 127, 255, THRESH_BINARY);
 
 	c_matImage = dst;
-
+	UpdateData();
+	m_List.InsertString(listcount, _T("binary"));
+	listcount++;
+	RedrawWindow(); // 리스트 박스 갱신
 	DrawImage(c_matImage);
 }
 
