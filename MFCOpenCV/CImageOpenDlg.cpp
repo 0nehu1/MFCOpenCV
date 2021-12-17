@@ -320,7 +320,7 @@ void CImageOpenDlg::OnBnClickedButtonImage()
 	{
 		//m_List.InsertString(listcount-1,str);
 		m_List.DeleteString(listcount);
-		m_List.InsertString(listcount, str);
+		//m_List.InsertString(listcount, str);
 		if (listcount < 1)
 			break;
 		listcount--;
@@ -580,7 +580,7 @@ void CImageOpenDlg::OnBnClickedButtonImageOriginal()
 	{
 	//m_List.InsertString(listcount-1,str);
 	m_List.DeleteString(listcount);
-	m_List.InsertString(listcount, str);
+	//m_List.InsertString(listcount, str);
 	if (listcount < 1)
 		break;
 	listcount--;
@@ -1040,7 +1040,7 @@ void CImageOpenDlg::OnBnClickedButtonCamera()
 	{
 		//m_List.InsertString(listcount-1,str);
 		m_List.DeleteString(listcount);
-		m_List.InsertString(listcount, str);
+		//m_List.InsertString(listcount, str);
 		if (listcount < 1)
 			break;
 		listcount--;
