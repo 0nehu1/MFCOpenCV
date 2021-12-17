@@ -77,7 +77,7 @@ public:
 	//afx_msg void OnBnClickedButtonHoughline();
 	afx_msg void OnBnClickedButtonBlur();
 	afx_msg void OnBnClickedButtonImagesave();
-	afx_msg void OnTimer(UINT_PTR nIDEvent);
+//	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	CStatic m_picture;
 	afx_msg void OnBnClickedButtonCamera();
 	CListBox m_List;
@@ -87,4 +87,5 @@ public:
 	afx_msg void OnBnClickedButtonUnsharp();
 	afx_msg void OnBnClickedButtonBinary();
 	afx_msg void OnBnClickedButtonHoughline();
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
 };
