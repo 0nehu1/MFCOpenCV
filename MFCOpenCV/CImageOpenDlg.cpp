@@ -527,32 +527,16 @@ void CImageOpenDlg::OnBnClickedButtonImageEnlargement()
 	//GetDlgItem(IDC_BUTTON_IMAGE)->EnableWindow(TRUE);
 	//GetDlgItem(IDC_BUTTON_CAMERA)->EnableWindow(TRUE);
 	
-	if (count < 8)
+	if (count < 2)
 		count = count * 2;
 	else
-		count = 8;
+		count = 2;
 	//CPoint point;
 	Mat dst;
 	//resize(m_matImage, dst1, Size(), 4, 4, INTER_NEAREST);
-	resize(m_matImage, dst, Size(m_matImage.cols*count,m_matImage.rows*count), 0, 0, INTER_CUBIC);
+	resize(c_matImage, dst, Size(m_matImage.cols*count,m_matImage.rows*count), 0, 0, INTER_CUBIC);
 	
-	// 리스트 박스 지우기
-
-	CString str;
-	str.Format(_T(""));
-	LPCTSTR lpszTemp = str;
-	while (1)
-	{
-		//m_List.InsertString(listcount-1,str);
-		m_List.DeleteString(listcount);
-		//m_List.InsertString(listcount, str);
-		if (listcount < 1)
-			break;
-		listcount--;
-	}
-	//imshow("dst1", dst2(Rect(point.x,point.y, m_matImage.cols/4,m_matImage.rows/4)));
-	//waitKey();
-	RedrawWindow(); // 리스트 박스 갱신
+	
 	CreateBitmapInfo(dst.cols, dst.rows,dst.channels() * 8);
 
 	c_matImage = dst;
@@ -573,29 +557,21 @@ void CImageOpenDlg::OnBnClickedButtonImageReduction()
 	CPen* oldPen = dc.SelectObject(&pen);
 	dc.Rectangle(0, 0, 551, 551);
 	
-	count = count * 0.5;
+	if (count > 0.5)
+		count = count * 0.5;
+	else
+		count = 0.5;
+	
 
 	//resize(m_matImage, dst1, Size(), 4, 4, INTER_NEAREST);
-	resize(m_matImage, dst, Size(m_matImage.cols*count , m_matImage.rows*count ), 0,0, INTER_CUBIC);
+	resize(c_matImage, dst, Size(m_matImage.cols*count , m_matImage.rows*count ), 0,0, INTER_CUBIC);
 	CreateBitmapInfo(dst.cols, dst.rows, dst.channels() * 8);
 	c_matImage = dst;
 	DrawImage(dst);
 	//DrawImage();
 	// 리스트 박스 지우기
 
-	CString str;
-	str.Format(_T(""));
-	LPCTSTR lpszTemp = str;
-	while (1)
-	{
-		//m_List.InsertString(listcount-1,str);
-		m_List.DeleteString(listcount);
-		//m_List.InsertString(listcount, str);
-		if (listcount < 1)
-			break;
-		listcount--;
-	}
-	RedrawWindow(); // 리스트 박스 갱신
+	
 	dc.SelectObject(oldPen);
 	pen.DeleteObject();
 }
