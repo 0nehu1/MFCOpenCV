@@ -271,6 +271,12 @@ void CImageOpenDlg::OnBnClickedButtonImage()
 	pWnd8->EnableWindow(TRUE);
 	pWnd9->EnableWindow(TRUE);
 
+	// 화면 확대/축소 및 스크롤 초기화
+	count = 1;
+	m_VScroll.SetScrollPos(0);
+	m_HScroll.SetScrollPos(0);
+	//c.x = c.y = 0;
+
 	CFileDialog fileDlg(TRUE, NULL, NULL, OFN_READONLY, _T("image file(*.jpg;)|*.jpg;|All Files(*.*)|*.*||"));
 	if (fileDlg.DoModal() == IDOK)
 	{
@@ -530,10 +536,23 @@ void CImageOpenDlg::OnBnClickedButtonImageEnlargement()
 	//resize(m_matImage, dst1, Size(), 4, 4, INTER_NEAREST);
 	resize(m_matImage, dst, Size(m_matImage.cols*count,m_matImage.rows*count), 0, 0, INTER_CUBIC);
 	
-	
+	// 리스트 박스 지우기
+
+	CString str;
+	str.Format(_T(""));
+	LPCTSTR lpszTemp = str;
+	while (1)
+	{
+		//m_List.InsertString(listcount-1,str);
+		m_List.DeleteString(listcount);
+		//m_List.InsertString(listcount, str);
+		if (listcount < 1)
+			break;
+		listcount--;
+	}
 	//imshow("dst1", dst2(Rect(point.x,point.y, m_matImage.cols/4,m_matImage.rows/4)));
 	//waitKey();
-	
+	RedrawWindow(); // 리스트 박스 갱신
 	CreateBitmapInfo(dst.cols, dst.rows,dst.channels() * 8);
 
 	c_matImage = dst;
@@ -562,6 +581,21 @@ void CImageOpenDlg::OnBnClickedButtonImageReduction()
 	c_matImage = dst;
 	DrawImage(dst);
 	//DrawImage();
+	// 리스트 박스 지우기
+
+	CString str;
+	str.Format(_T(""));
+	LPCTSTR lpszTemp = str;
+	while (1)
+	{
+		//m_List.InsertString(listcount-1,str);
+		m_List.DeleteString(listcount);
+		//m_List.InsertString(listcount, str);
+		if (listcount < 1)
+			break;
+		listcount--;
+	}
+	RedrawWindow(); // 리스트 박스 갱신
 	dc.SelectObject(oldPen);
 	pen.DeleteObject();
 }
@@ -613,9 +647,9 @@ void CImageOpenDlg::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 			else if (nSBCode == SB_LINEUP)
 				m_VScroll.SetScrollPos(pos - 10);
 			else if (nSBCode == SB_PAGEUP) 
-				m_VScroll.SetScrollPos(pos - 50);
+				m_VScroll.SetScrollPos(pos - 10);
 			else if (nSBCode == SB_PAGEDOWN) 
-				m_VScroll.SetScrollPos(pos + 50);
+				m_VScroll.SetScrollPos(pos + 10);
 			else if (nSBCode == SB_THUMBTRACK) 
 				m_VScroll.SetScrollPos(nPos);
 
@@ -651,9 +685,9 @@ void CImageOpenDlg::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 		else if (nSBCode == SB_LINEUP) 
 			m_HScroll.SetScrollPos(pos - 10);
 		else if (nSBCode == SB_PAGEUP) 
-			m_HScroll.SetScrollPos(pos - 50);    // Page 단위 이동 event
+			m_HScroll.SetScrollPos(pos - 10);    // Page 단위 이동 event
 		else if (nSBCode == SB_PAGEDOWN) 
-			m_HScroll.SetScrollPos(pos + 50);
+			m_HScroll.SetScrollPos(pos + 10);
 		else if (nSBCode == SB_THUMBTRACK) m_HScroll.SetScrollPos(nPos);   // 스크롤 헤더를 마우스로 끌때 event
 
 
@@ -752,7 +786,7 @@ void CImageOpenDlg::OnDestroy()
 void CImageOpenDlg::OnBnClickedButtonCamera()
 {
 	capture->read(mat_frame);
-
+	//m_matImage = mat_frame;
 
 	//이곳에 OpenCV 함수들을 적용합니다.
 	//여기에서는 그레이스케일 이미지로 변환합니다.
@@ -860,7 +894,7 @@ void CImageOpenDlg::OnBnClickedButtonCamera()
 			mat_temp.data, bitInfo, DIB_RGB_COLORS, SRCCOPY);
 	}
 
-	m_matImage = mat_temp;
+	m_matImage = mat_frame;
 	c_matImage = mat_temp;
 
 	HDC dc = ::GetDC(m_picture.m_hWnd);
