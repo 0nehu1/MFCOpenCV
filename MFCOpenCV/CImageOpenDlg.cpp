@@ -283,9 +283,9 @@ void CImageOpenDlg::OnBnClickedButtonImage()
 
 		c_matImage = m_matImage; // 객체에 이미지 복사
 
-		CreateBitmapInfo(m_matImage.cols, m_matImage.rows, m_matImage.channels() * 8);
+		CreateBitmapInfo(c_matImage.cols, c_matImage.rows, c_matImage.channels() * 8);
 
-		DrawImage(m_matImage);
+		DrawImage(c_matImage);
 		Invalidate(false); // TRUE, FALSE는 알아서.
 	}
 	// 영상 출력 Picture Control 크기
@@ -440,9 +440,9 @@ BOOL CImageOpenDlg::OnInitDialog()
 
 	}
 
-	//웹캠 크기를  320x240으로 지정    
-	capture->set(CAP_PROP_FRAME_WIDTH, 501);
-	capture->set(CAP_PROP_FRAME_HEIGHT, 501);
+	//웹캠 크기를  2592x1944으로 지정    
+	capture->set(CAP_PROP_FRAME_WIDTH, 2592);
+	capture->set(CAP_PROP_FRAME_HEIGHT, 1944);
 
 	SetTimer(1000, 30, NULL);
 
