@@ -768,7 +768,8 @@ void CImageOpenDlg::OnBnClickedButtonCamera()
 	//여기에서는 그레이스케일 이미지로 변환합니다.
 	cvtColor(mat_frame, mat_frame, COLOR_BGR2GRAY);
 
-
+	trans_count_w = static_cast<float>(501) / mat_frame.cols;	// 이미지 가로 비율 
+	trans_count_h = static_cast<float>(501) / mat_frame.rows;  // 이미지 세로 비율
 
 	//화면에 보여주기 위한 처리입니다.
 	int bpp = 8 * mat_frame.elemSize();
