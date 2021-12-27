@@ -6,7 +6,9 @@
 #include "afxdialogex.h"
 #include "CImageOpenDlg.h"
 using namespace std;
-
+#include <opencv2/imgproc/imgproc_c.h>
+#include "opencv2/highgui/highgui.hpp"
+#include <stdio.h>
 
 // CImageOpenDlg 대화 상자
 
@@ -439,6 +441,16 @@ BOOL CImageOpenDlg::OnInitDialog()
 
 	capture = new VideoCapture(0);
 
+	//capture->open(1);
+	//int deviceID = 0;             // 0 = open default camera
+	//int apiID = cv::CAP_ANY;      // 0 = autodetect default API
+	// open selected camera using selected API
+	//capture->open(deviceID + apiID);
+	// check if we succeeded
+	//if (!capture->isOpened()) {
+	//	cerr << "ERROR! Unable to open camera\n";
+	//	return -1;
+	//}
 	if (!capture->isOpened())
 	{
 
@@ -446,6 +458,20 @@ BOOL CImageOpenDlg::OnInitDialog()
 
 	}
 
+	/*hWindow = capCreateCaptureWindow(NULL, WS_CHILD | WS_VISIBLE, 0, 0, 501, 501, m_hWnd, 1);
+
+
+	bool ret = capDriverConnect(hWindow, 0);
+	if (ret == false)
+	{
+		AfxMessageBox(L"Webcam not found", MB_ICONERROR);
+
+		return false;
+	}*/
+	//Mat cvImage(height, width, CV_8U); //8bit mono format.
+	//memcpy(cvImage.data, pBuffer, bufferSize);
+
+	
 	//웹캠 크기를  2592x1944으로 지정    
 	capture->set(CAP_PROP_FRAME_WIDTH, 2592);
 	capture->set(CAP_PROP_FRAME_HEIGHT, 1944);
@@ -933,27 +959,27 @@ void CImageOpenDlg::OnBnClickedButtonCamera()
 void CImageOpenDlg::OnBnClickedButtonCamera2()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-	VideoCapture cap(0);
+	//hWindow = capCreateCaptureWindow(NULL, WS_CHILD | WS_VISIBLE, 0, 0, 2452, 1850, m_hWnd, 1);
+	//bool ret = capDriverConnect(hWindow, 0);
 
-	double fps = cap.get(CAP_PROP_FPS);
-	int delay = cvRound(1000 / fps);
 
-	Mat frame, inversed;
+	//CWnd* pWnd = CWnd::FromHandle(hWindow);
+	//hWindowDC = GetDC(pWnd);
+
+	int height, width, srcHeight, srcWidth;
 	
-	while (true)
-	{
-		cap >> frame;
-		if (frame.empty())
-			break;
+	CRect wndRC;
+	m_picture.GetClientRect(wndRC);
+	m_picture.MapWindowPoints(this, wndRC);
+	wndRC.DeflateRect(1, 1, 1, 1);
 
-		inversed = ~frame;
-		imshow("frame", ~frame);
-		// DrawImage(frame);
-		if (waitKey(10) > 27)
-			break;
-	}
-	
-	destroyAllWindows();
+	::SetWindowPos(hWindow, NULL, wndRC.left, wndRC.top, wndRC.Width(), wndRC.Height(), SWP_NOZORDER);
+	::ShowWindow(hWindow, SW_SHOW);
+
+	// 일정 주기로 웹캠으로부터 영상을 가져오기 위해 타이머를 사용합니다. 
+	SetTimer(1, 30, 0);
+
+
 }
 
 

@@ -7,6 +7,8 @@
 #include <opencv2/imgcodecs.hpp>
 #include <atlimage.h>
 #pragma comment (lib, "opencv_world454d")
+#include <vfw.h>
+#pragma comment (lib,"vfw32.lib")
 using namespace cv;
 // CImageOpenDlg 대화 상자
 
@@ -45,6 +47,13 @@ public:
 	CImage cimage_mfc;
 
 	int sourcex, sourcey;
+	// 웹캠 연결 부분
+	HWND hWindow;
+	HDC hWindowDC, hWindowCompatibleDC;
+	int height, width, srcHeight, srcWidth;
+	HBITMAP hBitmap;
+	BITMAPINFOHEADER bi;
+
 protected:
 	HICON m_hIcon;
 protected:
