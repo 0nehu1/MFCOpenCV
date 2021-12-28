@@ -997,6 +997,7 @@ void CImageOpenDlg::OnBnClickedButtonCamera2()
 	HWND hwndFind2 = ::FindWindowEx(hwndFind1, 0, NULL, L"MV-MQ60G_SN_222415B0090");
 	HWND hwndFind3 = ::FindWindowEx(hwndFind2, 0, L"AfxFrameOrView100s", NULL);
 	RECT rectDesk; 
+
 	::GetWindowRect(hwndFind3, &rectDesk);
 	GetDlgItem(IDC_PICTURE)->GetClientRect(&rect);
 	GetDlgItem(IDC_PICTURE_MINI)->GetClientRect(&rect_mini);
