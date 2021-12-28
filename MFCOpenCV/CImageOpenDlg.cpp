@@ -5,10 +5,9 @@
 #include "MFCOpenCV.h"
 #include "afxdialogex.h"
 #include "CImageOpenDlg.h"
-using namespace std;
-#include <opencv2/imgproc/imgproc_c.h>
 #include "opencv2/highgui/highgui.hpp"
-#include <stdio.h>
+using namespace std;
+
 
 // CImageOpenDlg 대화 상자
 
@@ -439,8 +438,16 @@ BOOL CImageOpenDlg::OnInitDialog()
 	origin.y = VScroll.top;
 
 
-	capture = new VideoCapture(0);
+	capture = new VideoCapture(0,CAP_ANY);
+	//cvNamedWindow("First Example of PVAPI Integrated", CV_WINDOW_AUTOSIZE);
 
+	
+	assert(capture != NULL);
+	/*string videoStreamAddress = "rtsp://192.168.20.1:554/mpeg4";   
+	if (!capture->open(videoStreamAddress)) {
+		cout << "Error opening video stream or file" << endl;
+		return -1;
+	}*/
 	//capture->open(1);
 	//int deviceID = 0;             // 0 = open default camera
 	//int apiID = cv::CAP_ANY;      // 0 = autodetect default API
@@ -451,6 +458,11 @@ BOOL CImageOpenDlg::OnInitDialog()
 	//	cerr << "ERROR! Unable to open camera\n";
 	//	return -1;
 	//}
+	
+	
+
+	//IplImage* frame;
+
 	if (!capture->isOpened())
 	{
 
@@ -966,18 +978,54 @@ void CImageOpenDlg::OnBnClickedButtonCamera2()
 	//CWnd* pWnd = CWnd::FromHandle(hWindow);
 	//hWindowDC = GetDC(pWnd);
 
-	int height, width, srcHeight, srcWidth;
+	//printf("Press ESC to exit\n");
+	//
+	//
+	//int height, width, srcHeight, srcWidth;
+	//
+	//CRect wndRC;
+	//m_picture.GetClientRect(wndRC);
+	//m_picture.MapWindowPoints(this, wndRC);
+	//wndRC.DeflateRect(1, 1, 1, 1);
+	//::SetWindowPos(hWindow, NULL, wndRC.left, wndRC.top, wndRC.Width(), wndRC.Height(), SWP_NOZORDER);
+	//::ShowWindow(hWindow, SW_SHOW);
+	//// 일정 주기로 웹캠으로부터 영상을 가져오기 위해 타이머를 사용합니다. 
+	//SetTimer(1, 30, 0);
+
+	HWND hwndFind = ::FindWindow(NULL, L"CamGuide - [MV-MQ60G_SN_222415B0090]");
+	HWND hwndFind1 = ::FindWindowEx(hwndFind, 0, L"MDIClient", NULL);
+	HWND hwndFind2 = ::FindWindowEx(hwndFind1, 0, NULL, L"MV-MQ60G_SN_222415B0090");
+	HWND hwndFind3 = ::FindWindowEx(hwndFind2, 0, L"AfxFrameOrView100s", NULL);
+	RECT rectDesk; 
+	::GetWindowRect(hwndFind3, &rectDesk);
+	GetDlgItem(IDC_PICTURE)->GetClientRect(&rect);
+	GetDlgItem(IDC_PICTURE_MINI)->GetClientRect(&rect_mini);
+
+
+	HDC dc = ::GetDC(hwndFind3);
+	//cimage_mfc.LoadFromResource
+	CClientDC dc1(GetDlgItem(IDC_PICTURE));
+	CClientDC dc2(GetDlgItem(IDC_PICTURE_MINI));
 	
-	CRect wndRC;
-	m_picture.GetClientRect(wndRC);
-	m_picture.MapWindowPoints(this, wndRC);
-	wndRC.DeflateRect(1, 1, 1, 1);
+	
 
-	::SetWindowPos(hWindow, NULL, wndRC.left, wndRC.top, wndRC.Width(), wndRC.Height(), SWP_NOZORDER);
-	::ShowWindow(hWindow, SW_SHOW);
+	::StretchBlt(dc1, 0, 0, rect.right - rect.left, rect.bottom - rect.top, dc, 
+		0, 0, rect.right - rect.left, rect.bottom - rect.top, SRCCOPY);
 
-	// 일정 주기로 웹캠으로부터 영상을 가져오기 위해 타이머를 사용합니다. 
-	SetTimer(1, 30, 0);
+	::StretchBlt(dc2, 0, 0, rect_mini.right - rect_mini.left, rect_mini.bottom - rect_mini.top, dc,
+		0, 0, rect_mini.right - rect_mini.left, rect_mini.bottom - rect_mini.top, SRCCOPY);
+
+	
+	//cimage_mfc.Create(c_matImage.cols, c_matImage.rows, 24);
+	//BITMAPINFO bitInfo = { {sizeof(BITMAPINFOHEADER),c_matImage.cols,c_matImage.rows,1,24},0 };
+
+
+	//c_matImage = cv::Mat(100,100, CV_8UC4, cimage_mfc.GetBits()).clone();
+
+	
+	//DrawImage(c_matImage);
+
+
 
 
 }

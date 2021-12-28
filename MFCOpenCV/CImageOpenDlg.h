@@ -6,6 +6,9 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <atlimage.h>
+#include <opencv2/imgproc/imgproc_c.h>
+#include "opencv2/highgui/highgui.hpp"
+#include <stdio.h>
 #pragma comment (lib, "opencv_world454d")
 #include <vfw.h>
 #pragma comment (lib,"vfw32.lib")
@@ -41,7 +44,7 @@ public:
 	int Hpos;
 	int Vpos;
 	CRect rect;
-	
+	CRect rect_mini;
 	VideoCapture* capture;
 	Mat mat_frame;
 	CImage cimage_mfc;
@@ -53,6 +56,7 @@ public:
 	int height, width, srcHeight, srcWidth;
 	HBITMAP hBitmap;
 	BITMAPINFOHEADER bi;
+
 
 protected:
 	HICON m_hIcon;
