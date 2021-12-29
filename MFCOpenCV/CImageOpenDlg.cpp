@@ -1015,9 +1015,25 @@ void CImageOpenDlg::OnBnClickedButtonCamera2()
 	
 	//imread(dc, );
 
+	// * Mat이미지로 변경
+	hBitmap = CreateCompatibleBitmap(dc, 100, 100);
+
+	BITMAP bmp;
+	GetObject(hBitmap, sizeof(BITMAP), &bmp);
+	int nChannels = bmp.bmBitsPixel == 1 ? 1 : bmp.bmBitsPixel / 8;
+	int depth = bmp.bmBitsPixel == 1 ? IPL_DEPTH_1U : IPL_DEPTH_8U;
+
+	BYTE* pBuffer = new BYTE[bmp.bmHeight * bmp.bmWidth * nChannels];
+	GetBitmapBits(hBitmap, bmp.bmHeight * bmp.bmWidth * nChannels, pBuffer);
+
+	// copy data to the imagedata  
+	Mat Channel4Mat(bmp.bmHeight, bmp.bmWidth * nChannels, CV_8UC4, pBuffer);
+	delete pBuffer;
+	Mat Channel3Mat(bmp.bmHeight, bmp.bmWidth * nChannels, CV_8UC3);
+	// convert color  
+	cvtColor(Channel4Mat, Channel3Mat, CV_BGRA2BGR);
 	
-	hBitmap = CreateCompatibleBitmap(dc, 2592, 1944);
-	m_matImage = hBitmapToMat(hBitmap);
+	m_matImage = Channel3Mat;
 	c_matImage = m_matImage;
 	DrawImage(c_matImage);
 
@@ -1044,26 +1060,7 @@ void CImageOpenDlg::OnBnClickedButtonCamera2()
 
 }
 
-Mat hBitmapToMat(HBITMAP hBmp)
-{
-	BITMAP bmp;
-	GetObject(hBmp, sizeof(BITMAP), &bmp);
 
-	int nChannels = bmp.bmBitsPixel == 1 ? 1 : bmp.bmBitsPixel / 8;
-	int depth = bmp.bmBitsPixel == 1 ? IPL_DEPTH_1U : IPL_DEPTH_8U;
-
-	BYTE* pBuffer = new BYTE[bmp.bmHeight * bmp.bmWidth * nChannels];
-	GetBitmapBits(hBmp, bmp.bmHeight * bmp.bmWidth * nChannels, pBuffer);
-
-	// copy data to the imagedata  
-	Mat Channel4Mat(bmp.bmHeight, bmp.bmWidth * nChannels, CV_8UC4, pBuffer);
-	delete pBuffer;
-
-	Mat Channel3Mat(bmp.bmHeight, bmp.bmWidth * nChannels, CV_8UC3);
-	// convert color  
-	cvtColor(Channel4Mat, Channel3Mat, CV_BGRA2BGR);
-	return Channel3Mat;
-}
 
 void CImageOpenDlg::OnBnClickedButtonEmbossing()
 {
