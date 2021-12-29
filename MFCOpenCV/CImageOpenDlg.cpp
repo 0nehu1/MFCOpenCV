@@ -1013,10 +1013,12 @@ void CImageOpenDlg::OnBnClickedButtonCamera2()
 	CClientDC dc1(GetDlgItem(IDC_PICTURE));
 	CClientDC dc2(GetDlgItem(IDC_PICTURE_MINI));
 	
+
+
 	//imread(dc, );
 
 	// * Mat이미지로 변경
-	hBitmap = CreateCompatibleBitmap(dc, 100, 100);
+	hBitmap = CreateCompatibleBitmap(dc, rect.right - rect.left, rect.bottom - rect.top);
 
 	BITMAP bmp;
 	GetObject(hBitmap, sizeof(BITMAP), &bmp);
