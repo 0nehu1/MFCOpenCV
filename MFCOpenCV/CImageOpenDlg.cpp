@@ -187,6 +187,8 @@ void CImageOpenDlg::DrawImage(Mat img)
 	{
 		//dc2.SetBkMode(TRANSPARENT);
 		dc2.Rectangle((0+Hpos)/ count * trans_count_w, (501-Vpos)/ count * trans_count_w, 99 / count+Hpos / count * trans_count_w, 99 / count + (501-Vpos) / count * trans_count_w);
+		//dc2.Rectangle((0 + Hpos) / count , (501 - Vpos) / count , 99 / count + Hpos / count , 99 / count + (501 - Vpos) / count );
+
 		dc2.SelectObject(&pOldBrush);
 		brush.DeleteObject();
 		pen.DeleteObject();
@@ -252,7 +254,7 @@ END_MESSAGE_MAP()
 void CImageOpenDlg::OnBnClickedButtonImage()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-
+	// 이미지 업로드를 클릭하면 기능들 사용 가능
 	CWnd* pWnd1 = (CWnd*)GetDlgItem(IDC_BUTTON_IMAGE_ENLARGEMENT);
 	CWnd* pWnd2 = (CWnd*)GetDlgItem(IDC_BUTTON_IMAGE_REDUCTION);
 	CWnd* pWnd3 = (CWnd*)GetDlgItem(IDC_BUTTON_IMAGE_ORIGINAL);
@@ -303,7 +305,7 @@ void CImageOpenDlg::OnBnClickedButtonImage()
 	// Picture Control 너비 높이 받아오기
 	int iWidth = rect.Width();
 	int iHeight = rect.Height();
-
+	
 	// Picture Control 크기를 Static Text로 출력하기
 	CString strPoint;
 	strPoint.Format(L"%04d, %04d", iWidth, iHeight);
@@ -487,6 +489,9 @@ BOOL CImageOpenDlg::OnInitDialog()
 	//웹캠 크기를  2592x1944으로 지정    
 	capture->set(CAP_PROP_FRAME_WIDTH, 2592);
 	capture->set(CAP_PROP_FRAME_HEIGHT, 1944);
+	
+	//capture->set(CAP_PROP_FRAME_WIDTH, 501);
+	//capture->set(CAP_PROP_FRAME_HEIGHT, 501);
 
 	SetTimer(1000, 30, NULL);
 
@@ -992,7 +997,7 @@ void CImageOpenDlg::OnBnClickedButtonCamera2()
 	//// 일정 주기로 웹캠으로부터 영상을 가져오기 위해 타이머를 사용합니다. 
 	//SetTimer(1, 30, 0);
 
-	HWND hwndFind = ::FindWindow(NULL, L"CamGuide - [MV-MQ60G_SN_222415B0090]");
+	HWND hwndFind = ::FindWindow(NULL, L"MV-MQ60G_SN_222415B0090 - CamGuide");
 	HWND hwndFind1 = ::FindWindowEx(hwndFind, 0, L"MDIClient", NULL);
 	HWND hwndFind2 = ::FindWindowEx(hwndFind1, 0, NULL, L"MV-MQ60G_SN_222415B0090");
 	HWND hwndFind3 = ::FindWindowEx(hwndFind2, 0, L"AfxFrameOrView100s", NULL);
@@ -1008,13 +1013,21 @@ void CImageOpenDlg::OnBnClickedButtonCamera2()
 	CClientDC dc1(GetDlgItem(IDC_PICTURE));
 	CClientDC dc2(GetDlgItem(IDC_PICTURE_MINI));
 	
+	//imread(dc, );
+
 	
+	hBitmap = CreateCompatibleBitmap(dc, 2592, 1944);
+	m_matImage = hBitmapToMat(hBitmap);
+	c_matImage = m_matImage;
+	DrawImage(c_matImage);
 
-	::StretchBlt(dc1, 0, 0, rect.right - rect.left, rect.bottom - rect.top, dc, 
-		0, 0, rect.right - rect.left, rect.bottom - rect.top, SRCCOPY);
 
-	::StretchBlt(dc2, 0, 0, rect_mini.right - rect_mini.left, rect_mini.bottom - rect_mini.top, dc,
-		0, 0, rect_mini.right - rect_mini.left, rect_mini.bottom - rect_mini.top, SRCCOPY);
+	//// dc 그대로 출력하기
+	//::StretchBlt(dc1, 0, 0, rect.right - rect.left, rect.bottom - rect.top, dc, 
+	//	0, 0, rect.right - rect.left, rect.bottom - rect.top, SRCCOPY);
+
+	//::StretchBlt(dc2, 0, 0, rect_mini.right - rect_mini.left, rect_mini.bottom - rect_mini.top, dc,
+	//	0, 0, rect_mini.right - rect_mini.left, rect_mini.bottom - rect_mini.top, SRCCOPY);
 
 	
 	//cimage_mfc.Create(c_matImage.cols, c_matImage.rows, 24);
@@ -1031,6 +1044,26 @@ void CImageOpenDlg::OnBnClickedButtonCamera2()
 
 }
 
+Mat hBitmapToMat(HBITMAP hBmp)
+{
+	BITMAP bmp;
+	GetObject(hBmp, sizeof(BITMAP), &bmp);
+
+	int nChannels = bmp.bmBitsPixel == 1 ? 1 : bmp.bmBitsPixel / 8;
+	int depth = bmp.bmBitsPixel == 1 ? IPL_DEPTH_1U : IPL_DEPTH_8U;
+
+	BYTE* pBuffer = new BYTE[bmp.bmHeight * bmp.bmWidth * nChannels];
+	GetBitmapBits(hBmp, bmp.bmHeight * bmp.bmWidth * nChannels, pBuffer);
+
+	// copy data to the imagedata  
+	Mat Channel4Mat(bmp.bmHeight, bmp.bmWidth * nChannels, CV_8UC4, pBuffer);
+	delete pBuffer;
+
+	Mat Channel3Mat(bmp.bmHeight, bmp.bmWidth * nChannels, CV_8UC3);
+	// convert color  
+	cvtColor(Channel4Mat, Channel3Mat, CV_BGRA2BGR);
+	return Channel3Mat;
+}
 
 void CImageOpenDlg::OnBnClickedButtonEmbossing()
 {
