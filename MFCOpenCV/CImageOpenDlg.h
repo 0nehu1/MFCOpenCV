@@ -102,4 +102,7 @@ public:
 	afx_msg void OnBnClickedButtonHoughline();
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	Mat hBitmapToMat(HBITMAP hBmp);
+	HDC dc;
+
+	void BmpSobel();
 };
