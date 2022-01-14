@@ -187,6 +187,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="CImageOpenDlg.h" />
+    <ClInclude Include="CRotateAngleDlg.h" />
+    <ClInclude Include="CTestDlg.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="MFCOpenCV.h" />
@@ -198,6 +200,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CImageOpenDlg.cpp" />
+    <ClCompile Include="CRotateAngleDlg.cpp" />
+    <ClCompile Include="CTestDlg.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="MFCOpenCV.cpp" />
     <ClCompile Include="MFCOpenCVDoc.cpp" />

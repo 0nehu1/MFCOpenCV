@@ -6,6 +6,8 @@
 #include "afxdialogex.h"
 #include "CImageOpenDlg.h"
 #include "opencv2/highgui/highgui.hpp"
+#include "CTestDlg.h"
+
 
 using namespace std;
 
@@ -244,8 +246,8 @@ BEGIN_MESSAGE_MAP(CImageOpenDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_EMBOSSING, &CImageOpenDlg::OnBnClickedButtonEmbossing)
 	ON_BN_CLICKED(IDC_BUTTON_UNSHARP, &CImageOpenDlg::OnBnClickedButtonUnsharp)
 	ON_BN_CLICKED(IDC_BUTTON_BINARY, &CImageOpenDlg::OnBnClickedButtonBinary)
-	ON_BN_CLICKED(IDC_BUTTON_HOUGHLINE, &CImageOpenDlg::OnBnClickedButtonHoughline)
 	ON_WM_TIMER()
+	ON_BN_CLICKED(IDC_BUTTON_IMAGE_ROTATE, &CImageOpenDlg::OnBnClickedButtonImageRotate)
 END_MESSAGE_MAP()
 
 
@@ -1115,5 +1117,30 @@ void CImageOpenDlg::OnTimer(UINT_PTR nIDEvent)
 
 void CImageOpenDlg::BmpSobel()
 {
+	
+}
+
+
+void CImageOpenDlg::OnBnClickedButtonImageRotate()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+
+	CRotateAngleDlg dlg;
+	PostMessage(WM_SYSKEYDOWN, VK_LMENU, 0); // 대화상자를 두개 이상 띄워놓기위해 alt키 누름버튼
+	if (dlg.DoModal() == IDOK)
+	{
+		int height = m_matImage.rows;
+		int width = m_matImage.cols;
+		int angle = dlg.m_nRotateAngle;
+
+		Mat M = getRotationMatrix2D(Point(width / 2.0, height / 2.0),
+			angle,
+			1);
+
+		warpAffine(m_matImage, c_matImage, M, Size(width, height));
+		DrawImage(c_matImage);
+	}
+	
+
 	
 }

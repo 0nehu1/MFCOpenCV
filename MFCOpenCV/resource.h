@@ -7,6 +7,9 @@
 #define IDR_MAINFRAME                   128
 #define IDR_MFCOpenCVTYPE               130
 #define IDD_DIALOG_OPENCV_IMAGE         310
+#define IDD_DIALOG_ROTATEANGLE          314
+#define IDD_DIALOG1                     316
+#define IDD_DIALOG_TEST                 316
 #define IDC_PICTURE                     1000
 #define IDC_BUTTON_IMAGE                1001
 #define IDC_TEXT_SIZE                   1002
@@ -30,8 +33,9 @@
 #define IDC_BUTTON_CAMERA               1018
 #define IDC_LIST1                       1019
 #define IDC_BUTTON_CAMERA2              1020
-#define IDC_BUTTON_BINARY2              1021
-#define IDC_BUTTON_HOUGHLINE            1021
+#define IDC_BUTTON_IMAGE_ROTATE         1021
+#define IDC_SLIDER_ROTATEANGLE          1022
+#define IDC_EDIT_ROTATEANGLE            1023
 #define ID_OPENCV_32771                 32771
 #define ID_OPENCV_IMAGEIN               32772
 
@@ -39,9 +43,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        312
+#define _APS_NEXT_RESOURCE_VALUE        318
 #define _APS_NEXT_COMMAND_VALUE         32773
-#define _APS_NEXT_CONTROL_VALUE         1020
+#define _APS_NEXT_CONTROL_VALUE         1024
 #define _APS_NEXT_SYMED_VALUE           310
 #endif
 #endif

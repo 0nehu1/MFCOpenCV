@@ -11,6 +11,7 @@
 #include <stdio.h>
 #pragma comment (lib, "opencv_world454d")
 #include <vfw.h>
+#include "CRotateAngleDlg.h"
 #pragma comment (lib,"vfw32.lib")
 using namespace cv;
 // CImageOpenDlg 대화 상자
@@ -103,6 +104,7 @@ public:
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	Mat hBitmapToMat(HBITMAP hBmp);
 	HDC dc;
-
+	CRotateAngleDlg dlg1;
 	void BmpSobel();
+	afx_msg void OnBnClickedButtonImageRotate();
 };
