@@ -26,4 +26,7 @@ public:
 	double m_nRotateAngle;
 	virtual BOOL OnInitDialog();
 	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
+	afx_msg void OnEnChangeEditRotateangle();
+	double m_nXpoint;
+	double m_nYpoint;
 };

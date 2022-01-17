@@ -8,7 +8,6 @@
 #define IDR_MFCOpenCVTYPE               130
 #define IDD_DIALOG_OPENCV_IMAGE         310
 #define IDD_DIALOG_ROTATEANGLE          314
-#define IDD_DIALOG1                     316
 #define IDD_DIALOG_TEST                 316
 #define IDC_PICTURE                     1000
 #define IDC_BUTTON_IMAGE                1001
@@ -36,6 +35,9 @@
 #define IDC_BUTTON_IMAGE_ROTATE         1021
 #define IDC_SLIDER_ROTATEANGLE          1022
 #define IDC_EDIT_ROTATEANGLE            1023
+#define IDC_EDIT_XPOINT                 1024
+#define IDC_EDIT2                       1025
+#define IDC_EDIT_YPOINT                 1025
 #define ID_OPENCV_32771                 32771
 #define ID_OPENCV_IMAGEIN               32772
 
@@ -45,7 +47,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        318
 #define _APS_NEXT_COMMAND_VALUE         32773
-#define _APS_NEXT_CONTROL_VALUE         1024
+#define _APS_NEXT_CONTROL_VALUE         1026
 #define _APS_NEXT_SYMED_VALUE           310
 #endif
 #endif

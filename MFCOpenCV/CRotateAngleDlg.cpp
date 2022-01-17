@@ -14,6 +14,8 @@ IMPLEMENT_DYNAMIC(CRotateAngleDlg, CDialog)
 CRotateAngleDlg::CRotateAngleDlg(CWnd* pParent /*=nullptr*/)
 	: CDialog(IDD_DIALOG_ROTATEANGLE, pParent)
 	, m_nRotateAngle(0)
+	, m_nXpoint(0)
+	, m_nYpoint(0)
 {
 
 }
@@ -28,11 +30,14 @@ void CRotateAngleDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_SLIDER_ROTATEANGLE, m_sliderRotateAngle);
 	DDX_Text(pDX, IDC_EDIT_ROTATEANGLE, m_nRotateAngle);
 	DDV_MinMaxDouble(pDX, m_nRotateAngle, 0, 360);
+	DDX_Text(pDX, IDC_EDIT_XPOINT, m_nXpoint);
+	DDX_Text(pDX, IDC_EDIT_YPOINT, m_nYpoint);
 }
 
 
 BEGIN_MESSAGE_MAP(CRotateAngleDlg, CDialog)
 	ON_WM_HSCROLL()
+	ON_EN_CHANGE(IDC_EDIT_ROTATEANGLE, &CRotateAngleDlg::OnEnChangeEditRotateangle)
 END_MESSAGE_MAP()
 
 
@@ -68,4 +73,15 @@ void CRotateAngleDlg::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 
 
 	CDialog::OnHScroll(nSBCode, nPos, pScrollBar);
+}
+
+
+void CRotateAngleDlg::OnEnChangeEditRotateangle()
+{
+	// TODO:  RICHEDIT 컨트롤인 경우, 이 컨트롤은
+	// CDialog::OnInitDialog() 함수를 재지정 
+	//하고 마스크에 OR 연산하여 설정된 ENM_CHANGE 플래그를 지정하여 CRichEditCtrl().SetEventMask()를 호출하지 않으면
+	// 이 알림 메시지를 보내지 않습니다.
+
+	// TODO:  여기에 컨트롤 알림 처리기 코드를 추가합니다.
 }

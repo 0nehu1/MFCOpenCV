@@ -1133,14 +1133,16 @@ void CImageOpenDlg::OnBnClickedButtonImageRotate()
 		int width = m_matImage.cols;
 		int angle = dlg.m_nRotateAngle;
 
-		Mat M = getRotationMatrix2D(Point(width / 2.0, height / 2.0),
-			angle,
-			1);
+		int x = dlg.m_nXpoint; 
+		int y = dlg.m_nYpoint;
+
+		Mat M = getRotationMatrix2D(Point(width / 2.0 + x, height / 2.0 + y), // 회전 이동할 중심점의  x,y 값
+			angle,	// 회전 이동할 만큼의 각
+			1);		// 원본 영상의 비율 차이
 
 		warpAffine(m_matImage, c_matImage, M, Size(width, height));
 		DrawImage(c_matImage);
 	}
-	
 
 	
 }
