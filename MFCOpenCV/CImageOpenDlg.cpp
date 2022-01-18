@@ -248,6 +248,8 @@ BEGIN_MESSAGE_MAP(CImageOpenDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_BINARY, &CImageOpenDlg::OnBnClickedButtonBinary)
 	ON_WM_TIMER()
 	ON_BN_CLICKED(IDC_BUTTON_IMAGE_ROTATE, &CImageOpenDlg::OnBnClickedButtonImageRotate)
+	ON_BN_CLICKED(IDC_BUTTON_IMAGE_LABELING, &CImageOpenDlg::OnBnClickedButtonImageLabeling)
+	ON_BN_CLICKED(IDC_BUTTON_IMAGE_FACEDETECT, &CImageOpenDlg::OnBnClickedButtonImageFacedetect)
 END_MESSAGE_MAP()
 
 
@@ -1143,6 +1145,51 @@ void CImageOpenDlg::OnBnClickedButtonImageRotate()
 		warpAffine(m_matImage, c_matImage, M, Size(width, height));
 		DrawImage(c_matImage);
 	}
-
 	
+}
+
+
+void CImageOpenDlg::OnBnClickedButtonImageLabeling()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	Mat bin;
+	threshold(m_matImage, bin,0, 255, THRESH_BINARY | THRESH_OTSU);	
+
+	Mat labels, stats, centroids;
+	int cnt = connectedComponentsWithStats(bin, labels, stats, centroids);
+
+	Mat dst; 
+	cvtColor(m_matImage, dst, COLOR_GRAY2BGR);
+
+	for (int i = 1; i < cnt; i++)
+	{
+		int* p = stats.ptr<int>(i);
+
+		if (p[4] < 20) continue;
+
+		rectangle(dst, Rect(p[0], p[1], p[2], p[3]), Scalar(0, 255, 255), 2);
+	}
+	
+	c_matImage = dst;
+
+	DrawImage(c_matImage);
+	
+}
+
+
+void CImageOpenDlg::OnBnClickedButtonImageFacedetect()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+
+	CascadeClassifier classifier("haarcascade_frontalface_default.xml");
+	//CascadeClassifier classifier("haarcascade_eye.xml");
+
+	vector<Rect> faces;
+	classifier.detectMultiScale(m_matImage, faces);
+
+	for (Rect rc : faces) {
+		rectangle(m_matImage, rc, Scalar(255, 0, 255), 2);
+	}
+
+	DrawImage(m_matImage);
 }

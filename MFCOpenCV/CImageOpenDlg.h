@@ -107,4 +107,6 @@ public:
 	CRotateAngleDlg dlg1;
 	void BmpSobel();
 	afx_msg void OnBnClickedButtonImageRotate();
+	afx_msg void OnBnClickedButtonImageLabeling();
+	afx_msg void OnBnClickedButtonImageFacedetect();
 };

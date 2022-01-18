@@ -34,9 +34,11 @@
 #define IDC_BUTTON_CAMERA2              1020
 #define IDC_BUTTON_IMAGE_ROTATE         1021
 #define IDC_SLIDER_ROTATEANGLE          1022
+#define IDC_BUTTON_IMAGE_LABELING       1022
 #define IDC_EDIT_ROTATEANGLE            1023
+#define IDC_BUTTON_IMAGE_LABELING2      1023
+#define IDC_BUTTON_IMAGE_FACEDETECT     1023
 #define IDC_EDIT_XPOINT                 1024
-#define IDC_EDIT2                       1025
 #define IDC_EDIT_YPOINT                 1025
 #define ID_OPENCV_32771                 32771
 #define ID_OPENCV_IMAGEIN               32772
