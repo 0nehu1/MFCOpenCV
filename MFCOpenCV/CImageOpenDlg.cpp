@@ -1138,10 +1138,14 @@ void CImageOpenDlg::OnBnClickedButtonImageRotate()
 		int x = dlg.m_nXpoint; 
 		int y = dlg.m_nYpoint;
 
-		Mat M = getRotationMatrix2D(Point(width / 2.0 + x, height / 2.0 + y), // 회전 이동할 중심점의  x,y 값
+		//Mat M = getRotationMatrix2D(Point(width / 2.0 + x, height / 2.0 + y), // 회전 이동할 중심점의  x,y 값
+		//	angle,	// 회전 이동할 만큼의 각
+		//	1);		// 원본 영상의 비율 차이
+
+		Mat M = getRotationMatrix2D(Point(0 + x, 0 + y), // 회전 이동할 중심점의  x,y 값
 			angle,	// 회전 이동할 만큼의 각
 			1);		// 원본 영상의 비율 차이
-
+		
 		warpAffine(m_matImage, c_matImage, M, Size(width, height));
 		DrawImage(c_matImage);
 	}
@@ -1181,8 +1185,8 @@ void CImageOpenDlg::OnBnClickedButtonImageFacedetect()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 
-	CascadeClassifier classifier("haarcascade_frontalface_default.xml");
-	//CascadeClassifier classifier("haarcascade_eye.xml");
+	//CascadeClassifier classifier("haarcascade_frontalface_default.xml"); // 얼굴인식
+	CascadeClassifier classifier("haarcascade_eye.xml");	// 눈 인식
 
 	vector<Rect> faces;
 	classifier.detectMultiScale(m_matImage, faces);

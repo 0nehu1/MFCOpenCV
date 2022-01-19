@@ -26,6 +26,7 @@ CRotateAngleDlg::~CRotateAngleDlg()
 
 void CRotateAngleDlg::DoDataExchange(CDataExchange* pDX)
 {
+	PostMessage(WM_SYSKEYDOWN, VK_LMENU, 0); // 대화상자를 두개 이상 띄워놓기위해 alt키 누름버튼
 	CDialog::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_SLIDER_ROTATEANGLE, m_sliderRotateAngle);
 	DDX_Text(pDX, IDC_EDIT_ROTATEANGLE, m_nRotateAngle);
