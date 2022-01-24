@@ -495,6 +495,7 @@ BOOL CImageOpenDlg::OnInitDialog()
 	capture->set(CAP_PROP_FRAME_WIDTH, 2592);
 	capture->set(CAP_PROP_FRAME_HEIGHT, 1944);
 	
+
 	//capture->set(CAP_PROP_FRAME_WIDTH, 501);
 	//capture->set(CAP_PROP_FRAME_HEIGHT, 501);
 
@@ -1108,6 +1109,9 @@ void CImageOpenDlg::OnBnClickedButtonHoughline()
 	c_matImage = dst;
 	DrawImage(c_matImage);
 
+	lines.clear();
+	
+
 }
 
 void CImageOpenDlg::OnTimer(UINT_PTR nIDEvent)
@@ -1189,11 +1193,12 @@ void CImageOpenDlg::OnBnClickedButtonImageFacedetect()
 	CascadeClassifier classifier("haarcascade_eye.xml");	// 눈 인식
 
 	vector<Rect> faces;
-	classifier.detectMultiScale(m_matImage, faces);
+	classifier.detectMultiScale(c_matImage, faces);
 
 	for (Rect rc : faces) {
-		rectangle(m_matImage, rc, Scalar(255, 0, 255), 2);
+		rectangle(c_matImage, rc, Scalar(255, 0, 255), 2);
 	}
+	DrawImage(c_matImage);
 
-	DrawImage(m_matImage);
+	vector<Rect>().swap(faces);
 }
